@@ -24,6 +24,13 @@ const TOOLBAR_OPTIONS = [
   ["clean"],
 ];
 
+let arrayColors = ["red", "blue", "green", "yellow", "orange", "purple"];
+
+interface ICursorData {
+  range: any;
+  userName: string;
+}
+
 type Message = {
   author: string;
   message: string;
@@ -31,16 +38,19 @@ type Message = {
 
 type TextEditorProps = {
   id: string;
+  username: string;
 };
 
-export default function TextEditor({ id }: TextEditorProps) {
-  //const documentId = "test";
+export interface GetDocumentParametersDTO {
+  documentId: string;
+  userName: string;
+}
 
-  console.log(id);
+export default function TextEditor({ id, username }: TextEditorProps) {
   const [quill, setQuill] = useState<Quill>();
   const [socket, setSocket] = useState<Socket>();
   const [cursorsModule, setCursorsModule] = useState<QuillCursors>();
-  let cursorsPage: any;
+  const [cursors, setCursors] = useState<ICursorData[]>([]);
 
   useEffect(() => {
     setSocket(io("http://localhost:3002"));
@@ -57,7 +67,13 @@ export default function TextEditor({ id }: TextEditorProps) {
       quill.setContents(document);
       quill.enable();
     });
-    socket.emit("get-document", id);
+
+    let params: GetDocumentParametersDTO = {
+      documentId: id,
+      userName: username,
+    };
+
+    socket.emit("get-document", params);
   }, [socket, quill, id]);
 
   useEffect(() => {
@@ -76,13 +92,26 @@ export default function TextEditor({ id }: TextEditorProps) {
     if (socket == null || quill == null) return;
 
     const handler = (delta: any) => {
-      console.log(delta);
       quill.updateContents(delta);
     };
     socket.on("receive-changes", handler);
 
     return () => {
       socket.off("receive-changes", handler);
+    };
+  }, [socket, quill]);
+
+  useEffect(() => {
+    if (socket == null || quill == null) return;
+
+    const handler = (data: any) => {
+      let i = cursors.findIndex((c) => c.userName == data.userName);
+      if (i >= 0) cursors.splice(i, 1);
+    };
+    socket.on("user-disconnect", handler);
+
+    return () => {
+      socket.off("user-disconnect", handler);
     };
   }, [socket, quill]);
 
@@ -111,11 +140,33 @@ export default function TextEditor({ id }: TextEditorProps) {
   }, [socket, quill]);
 
   const sendCursorChange = (range: any, oldRange: any, source: any) => {
-    if (source == "user") if (socket) socket.emit("send-cursor-changes", range);
+    if (source == "user") {
+      let myCursorData: ICursorData = {
+        range: range,
+        userName: username,
+      };
+      if (socket) socket.emit("send-cursor-changes", myCursorData);
+    }
   };
 
-  const handleUserCursorChange = (data: any) => {
-    if (cursorsModule) cursorsModule.moveCursor("cursorRemote", data);
+  const handleUserCursorChange = (data: ICursorData) => {
+    if (data.userName == username) return;
+
+    let cursor = cursors?.find((c) => c.userName == data.userName);
+    if (cursor) {
+      cursorsModule?.moveCursor(data.userName, data.range);
+    } else {
+      console.log("new cursor", cursors);
+      cursorsModule?.createCursor(
+        data.userName,
+        data.userName,
+        arrayColors[cursors.length]
+      );
+      cursorsModule?.moveCursor(data.userName, data.range);
+      cursors.push(data);
+      console.log("new cursor", cursors);
+      setCursors(cursors);
+    }
   };
 
   const wrapperRef = useCallback((wrapper: any) => {
@@ -138,11 +189,7 @@ export default function TextEditor({ id }: TextEditorProps) {
     q.disable();
     q.setText("Loading...");
     setQuill(q);
-
-    let cursorsModule = q.getModule("cursors");
-    cursorsModule.createCursor("cursorRemote", "User 2", "blue");
-
-    setCursorsModule(cursorsModule);
+    setCursorsModule(q.getModule("cursors"));
   }, []);
 
   return <div className="container" ref={wrapperRef}></div>;

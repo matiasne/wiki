@@ -1,0 +1,44 @@
+import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { passportJwtSecret } from 'jwks-rsa';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { UsersService } from 'src/users/users.service';
+import { AuthConfig } from '../auth.config';
+
+@Injectable()
+export class JwtStrategyCognito extends PassportStrategy(Strategy) {
+  constructor(
+    private authConfig: AuthConfig,
+    private usersService: UsersService,
+  ) {
+    super({
+      secretOrKeyProvider: passportJwtSecret({
+        cache: true,
+        rateLimit: true,
+        jwksRequestsPerMinute: 5,
+        jwksUri: `${authConfig.authority}/.well-known/jwks.json`,
+      }),
+
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      audience: authConfig.clientId,
+      issuer: authConfig.authority,
+      algorithms: ['RS256'],
+    });
+  }
+
+  public async validate(payload: any) {
+    if (payload.email) {
+      const userData = await this.usersService.getByEmail(payload.email);
+      console.log('userData', userData);
+      if (!userData) throw new Error('User not found');
+      return {
+        username: payload.email,
+        id: userData.id,
+      };
+    } else {
+      return false;
+    }
+
+    // return !!payload.sub;
+  }
+}

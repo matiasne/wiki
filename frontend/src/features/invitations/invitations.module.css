@@ -1,0 +1,20 @@
+.invitationItem {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  padding: 10px;
+  gap: 10px;
+  line-height: 35px;
+}
+
+.email {
+  margin-right: auto;
+}
+
+.status {
+  margin-left: auto;
+}
+
+.rol {
+  margin-left: auto;
+}

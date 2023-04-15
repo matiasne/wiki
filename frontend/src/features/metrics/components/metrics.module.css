@@ -1,0 +1,56 @@
+.modalContainer {
+  width: 300px;
+}
+
+.titleTopMetrics {
+  font-weight: 800;
+  text-align: left;
+}
+
+.metricName {
+  text-align: left;
+  font-weight: 500;
+}
+
+.paddingCard {
+  padding: 20px !important;
+}
+
+.cardValue {
+  font-size: 20px;
+  line-height: 50px;
+  text-align: right;
+  height: 70px;
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+.variationDown {
+  font-size: 12px;
+  text-align: right;
+  color: red;
+  margin-top: -17px;
+}
+
+.variationUp {
+  font-size: 12px;
+  text-align: right;
+  color: green;
+  margin-top: -17px;
+}
+
+.actionButtons {
+  flex: auto;
+  text-align: end;
+}
+
+.oneLineInfoCard {
+  background-color: #f5f5f5 !important;
+  box-shadow: -10px -10px 15px rgba(255, 255, 255, 0.5),
+    10px 10px 15px rgba(70, 70, 70, 0.12) !important;
+}
+
+.valueWrapper {
+  text-align: center;
+}

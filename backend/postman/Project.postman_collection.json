@@ -1,0 +1,356 @@
+{
+	"info": {
+		"_postman_id": "f692d547-ed96-4912-8b07-97275493c947",
+		"name": "Project",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "18968162"
+	},
+	"item": [
+		{
+			"name": "Departments",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "hijo",
+									"type": "text"
+								},
+								{
+									"key": "parentId",
+									"value": "e5f51c9d-6258-4b3e-8ab5-3c230fd54825",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/departments",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"departments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/departments/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"departments",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{departmentTestId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Metrics",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "Metric Name Tests",
+									"type": "text"
+								},
+								{
+									"key": "departmentId",
+									"value": "{{departmentTestId}}",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "description test",
+									"type": "text"
+								},
+								{
+									"key": "fieldsName[0]",
+									"value": "pruebaAa\n",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "fieldsName[1]",
+									"value": "pruebaBa",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "fields[0]",
+									"value": "valors",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/metrics",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"metrics"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/metrics/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"metrics",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{metricTestid}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/metrics",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"metrics"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Fields",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "createdFormEndpoint",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "asd",
+									"type": "text"
+								},
+								{
+									"key": "metricId",
+									"value": "{{metricTestId}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/fields",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"fields"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/fields/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"fields",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{fieldTestId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add value",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "value",
+									"value": "8888",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/fields/:id/value",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"fields",
+								":id",
+								"value"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{fieldTestId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all values",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/fields/:id/lastValues?fromDate=2020-11-21T13:00:20.613Z&toDate=2023-11-21T13:00:20.613Z",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"fields",
+								":id",
+								"lastValues"
+							],
+							"query": [
+								{
+									"key": "fromDate",
+									"value": "2020-11-21T13:00:20.613Z"
+								},
+								{
+									"key": "toDate",
+									"value": "2023-11-21T13:00:20.613Z"
+								}
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{fieldTestId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Registers",
+			"item": [
+				{
+					"name": "add new",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/registers",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"registers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
