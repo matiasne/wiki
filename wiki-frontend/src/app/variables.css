@@ -1,0 +1,43 @@
+:root {
+  --white: #ffffff;
+  --black: #242842;
+  --primary-blue: #3461fd;
+  --medium-grey: #979dc1;
+  --yellow: #eacb26;
+  --green: #00bc9b;
+  --red: #fe1d1d;
+  --linear-gradient-blue: linear-gradient(
+    90.98deg,
+    #5aa1ff 0.14%,
+    #4e88fa 44.64%,
+    #3e6af3 100%
+  );
+  --background-primary: var(--white);
+
+  --font-family-primary: "Mulish", sans-serif;
+  --font-style-primary: normal;
+  --font-weight-1: 400;
+  --font-weight-2: 700;
+  --font-weight-3: 900;
+
+  --font-size-1: 10px;
+  --font-size-2: 12px;
+  --font-size-3: 14px;
+  --font-size-4: 16px;
+  --font-size-5: 18px;
+  --font-size-6: 20px;
+  --font-size-7: 22px;
+
+  --line-height-1: 10px;
+  --line-height-2: 12px;
+  --line-height-3: 14px;
+  --line-height-4: 16px;
+  --line-height-5: 18px;
+  --line-height-6: 20px;
+  --line-height-7: 22px;
+  --line-height-8: 24px;
+  --line-height-9: 25px;
+
+  --letter-spacing-1: 0.4px;
+  --letter-spacing-2: 0.5px;
+}

@@ -1,8 +1,14 @@
 "use client";
 
-import "./globals.css";
-import styles from "./utils.module.css";
-import GmailTreeView from "./components/TreeView/NodesTreeView";
+import { AuthProvider } from "@/features/auth/contexts/AuthContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Mulish } from "next/font/google";
+import { useState } from "react";
+
+const mulish = Mulish({
+  weight: "400",
+  subsets: ["latin"],
+});
 
 export const metadata = {
   title: "Create Next App",
@@ -14,13 +20,14 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const [queryClient] = useState(() => new QueryClient());
+
   return (
     <html lang="en">
-      <body>
-        <div className={`${styles.sidebar}`}>
-          <GmailTreeView />
-        </div>
-        <div className={`${styles.content}`}>{children}</div>
+      <body className={mulish.className}>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>{children}</AuthProvider>
+        </QueryClientProvider>
       </body>
     </html>
   );

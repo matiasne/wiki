@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpStatus,
   Post,
   Req,
   Res,
@@ -30,34 +31,55 @@ export class AuthController {
   ) {}
 
   @Post('register')
-  async register(@Body() authRegisterDto: AuthRegisterDto) {
-    try {
-      let newUser: CreateUserDto = new CreateUserDto();
-      newUser.email = authRegisterDto.email;
-      newUser.name = authRegisterDto.username;
+  async register(
+    @Body() authRegisterDto: AuthRegisterDto,
+    @Res() response: any,
+  ) {
+    let newUser: CreateUserDto = new CreateUserDto();
+    newUser.email = authRegisterDto.email;
+    newUser.name = authRegisterDto.username;
 
-      await this.userService.create(newUser);
+    try {
+      let resp = await this.authService.register(authRegisterDto);
+
+      try {
+        await this.userService.create(newUser);
+      } catch (e) {
+        throw new BadRequestException(e.message);
+      }
+
+      return response.status(HttpStatus.OK).send({
+        message: `User has been registered`,
+      });
     } catch (e) {
-      throw new BadRequestException(e.message);
-    }
+      if (e.code === 'UsernameExistsException') {
+        let user = await this.userService.getByEmail(authRegisterDto.email);
+        if (!user) {
+          await this.userService.create(newUser);
+        }
+      }
 
-    try {
-      await this.authService.register(authRegisterDto);
-      return {
-        message: 'User has been registered',
-      };
-    } catch (e) {}
+      return response.status(HttpStatus.CONFLICT).send({
+        message: e.message,
+      });
+    }
   }
 
   @Post('login')
   async login(@Body() authenticateRequest: AuthCredentialsDto) {
     try {
+      let resp = await this.authService.authenticateUser(authenticateRequest);
+
       let user = await this.userService.getByEmail(
         authenticateRequest.username,
       );
-      if (!user) throw new BadRequestException('User not found');
-      console.log(user);
-      return await this.authService.authenticateUser(authenticateRequest);
+      if (!user) {
+        let newUser: CreateUserDto = new CreateUserDto();
+        newUser.email = authenticateRequest.username;
+        newUser.name = authenticateRequest.username;
+        await this.userService.create(newUser);
+      }
+      return resp;
     } catch (e) {
       throw new BadRequestException(e.message);
     }

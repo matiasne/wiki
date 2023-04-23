@@ -68,16 +68,10 @@ export class ContentNodeService {
 
     let node = await this.contentNodeRepository.findOne({ where: { id: id } });
 
-    console.log(node);
-
     return await this.contentNodeRepository.manager
       .getTreeRepository(ContentNode)
-      .createDescendantsQueryBuilder('contentNode', 'closureTable', node)
-      .leftJoinAndSelect('contentNode.usersRoles', 'userNodeRole')
-      .leftJoinAndSelect('userNodeRole.user', 'user')
-      .andWhere('user.id = :userId')
-      .setParameters(parameters)
-      .getMany();
+      .findDescendantsTree(node);
+    // returns all direct subcategories (without its nested categories) of a parentCategory
   }
 
   async findOne(user: IAuthUser, id: string) {

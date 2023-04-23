@@ -69,7 +69,6 @@ export default class MetricAOneLineInfo extends React.Component<MetricAListItemP
 
   public handleCloseEditValue = () => {
     this.props.onEditSave();
-    console.log("!!!!");
     this.setState((state) => ({
       openEditValue: false,
     }));

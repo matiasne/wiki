@@ -27,14 +27,15 @@ export class JwtStrategyCognito extends PassportStrategy(Strategy) {
   }
 
   public async validate(payload: any) {
+    console.log('JwtStrategyCognito.validate() payload:', payload);
     if (payload.email) {
       const userData = await this.usersService.getByEmail(payload.email);
-      console.log('userData', userData);
-      if (!userData) throw new Error('User not found');
-      return {
-        username: payload.email,
-        id: userData.id,
-      };
+      if (userData) {
+        return {
+          username: payload.email,
+          id: userData.id,
+        };
+      } else return false;
     } else {
       return false;
     }

@@ -16,23 +16,16 @@ export class CreateContentNodeDto {
   @IsString()
   parentId: string;
 
-  @IsNotEmpty()
-  @IsString()
   order: string;
 
-  @IsString()
   data: string;
 
-  @IsNotEmpty()
-  @IsString()
   icon: string;
 
   @IsNotEmpty()
   @IsString()
   name: string;
 
-  @IsNotEmpty()
-  @IsString()
   description: string;
 
   @IsNotEmpty()

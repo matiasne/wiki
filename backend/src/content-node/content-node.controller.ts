@@ -46,7 +46,7 @@ export class ContentNodeController {
     return this.contentNodeService.findOne(user, id);
   }
 
-  @Get(':id/tree')
+  @Get(':id/childs')
   findDescendantsTree(@AuthUser() user: IAuthUser, @Param('id') id: string) {
     return this.contentNodeService.findDescendantsTree(user, id);
   }
