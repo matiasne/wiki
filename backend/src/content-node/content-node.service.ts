@@ -18,7 +18,15 @@ export class ContentNodeService {
   ) {}
 
   async create(user: IAuthUser, createContentNodeDto: CreateContentNodeDto) {
+    console.log(createContentNodeDto);
+
     const creator = await this.usersService.getById(user.id);
+
+    if (await this.checkIfNodeNameExists(user, createContentNodeDto)) {
+      return {
+        message: 'Node with this name already exists',
+      };
+    }
 
     const newNode: ContentNode =
       this.contentNodeRepository.create(createContentNodeDto);
@@ -53,6 +61,25 @@ export class ContentNodeService {
       .createQueryBuilder('contentNode')
       .leftJoinAndSelect('contentNode.usersRoles', 'userNodeRole')
       .leftJoinAndSelect('userNodeRole.user', 'user')
+      .where('contentNode.parentId IS NULL')
+      .andWhere('user.id = :userId')
+      .setParameters(parameters)
+      .getMany();
+
+    return data;
+  }
+
+  async findRootId(user: IAuthUser, id: string) {
+    const parameters = {
+      id: id,
+      userId: user.id,
+    };
+
+    const data = await this.contentNodeRepository
+      .createQueryBuilder('contentNode')
+      .leftJoinAndSelect('contentNode.usersRoles', 'userNodeRole')
+      .leftJoinAndSelect('userNodeRole.user', 'user')
+      .where('contentNode.id = :id')
       .where('contentNode.parentId IS NULL')
       .andWhere('user.id = :userId')
       .setParameters(parameters)
@@ -109,23 +136,33 @@ export class ContentNodeService {
     id: string,
     updateContentNodeDto: UpdateContentNodeDto,
   ) {
+    if (await this.checkIfNodeNameExists(user, updateContentNodeDto)) {
+      return {
+        message: 'Node with this name already exists',
+      };
+    }
+
     let node: ContentNode = await this.findOne(user, id);
     if (node == null) {
       return {
         message: 'Node not found or user does not have access to it',
       };
     }
-    let parent: ContentNode = await this.findOne(
-      user,
-      updateContentNodeDto.parentId,
-    );
 
     let partialNode: ContentNode = new ContentNode();
     partialNode.description = updateContentNodeDto.description;
     partialNode.name = updateContentNodeDto.name;
-    partialNode.parent = parent;
+
+    if (updateContentNodeDto.parentId != '0') {
+      let parent: ContentNode = await this.findOne(
+        user,
+        updateContentNodeDto.parentId,
+      );
+      partialNode.parent = parent;
+    }
+
+    partialNode.emojiUnified = updateContentNodeDto.emojiUnified;
     partialNode.type = updateContentNodeDto.type;
-    partialNode.order = updateContentNodeDto.order;
     partialNode.data = updateContentNodeDto.data;
 
     return await this.contentNodeRepository.update(id, partialNode);
@@ -147,5 +184,37 @@ export class ContentNodeService {
           'Node could not be deleted the node does not exist or has children',
       };
     }
+  }
+
+  async checkIfNodeNameExists(
+    user: IAuthUser,
+    contentNodeDto: CreateContentNodeDto | UpdateContentNodeDto,
+  ) {
+    let nodeDescendants: any;
+
+    if (contentNodeDto.parentId != '0') {
+      nodeDescendants = await this.findDescendantsTree(
+        user,
+        contentNodeDto.parentId,
+      );
+
+      let exist = await nodeDescendants.childrens.find(
+        (element) => element.name == contentNodeDto.name,
+      );
+      if (exist) {
+        return true;
+      }
+    } else {
+      nodeDescendants = await this.findRoots(user);
+
+      let exist = await nodeDescendants.find(
+        (element) => element.name == contentNodeDto.name,
+      );
+      console.log(exist);
+      if (exist) {
+        return true;
+      }
+    }
+    return false;
   }
 }

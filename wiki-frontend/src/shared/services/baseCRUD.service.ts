@@ -12,14 +12,14 @@ export default class BaseCRUD {
     return await http.get(url);
   }
 
-  async post(id?: any) {
+  async post(data: any, id?: any) {
     const url = id ? `${this.urlBase}/${id}` : `${this.urlBase}`;
-    return await http.post(url);
+    return await http.post(url, data);
   }
 
   async update(id?: any, data?: any) {
     const url = id ? `${this.urlBase}/${id}` : `${this.urlBase}`;
-    return await http.patch(url);
+    return await http.patch(url, data);
   }
 
   async delete(id?: any) {

@@ -4,7 +4,6 @@ import TextEditor from "@/features/text-editor/components/TextEditor";
 
 export default function TextEditorPage({ params }: { params: { id: string } }) {
   const searchParams = useSearchParams();
-  console.log(searchParams.get("username")); // Logs "search"
 
   return (
     <TextEditor

@@ -21,13 +21,16 @@ export class ContentNode extends BaseEntity {
   name: string;
 
   @Column({ default: '' })
-  icon: string;
+  emojiUnified: string;
 
   @Column({ default: '' })
   description: string;
 
   @Column({ default: '' })
   data: string;
+
+  @Column({ default: '' })
+  extension: string;
 
   @Column({ default: '' })
   order: string;
@@ -39,7 +42,7 @@ export class ContentNode extends BaseEntity {
   @TreeChildren()
   childrens: ContentNode[];
 
-  @TreeParent()
+  @TreeParent({ onDelete: 'CASCADE' })
   parent: ContentNode;
 
   @ManyToOne(() => User, (user) => user.createdNodes, {

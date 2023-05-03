@@ -1,4 +1,5 @@
 @import url("variables.css");
+@import url("@chatscope/chat-ui-kit-styles/dist/default/styles.min.css");
 
 * {
   box-sizing: border-box;
@@ -13,7 +14,6 @@ a {
 
 body {
   background-color: var(--background-primary) !important;
-  margin: 10px;
   font-family: "Mulish", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;

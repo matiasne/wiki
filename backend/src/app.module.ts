@@ -17,7 +17,9 @@ import { UserNodeRole } from './user-node-rol/entities/user-node-rol.entity';
 import { PinecodeApiModule } from './pinecode-api/pinecode-api.module';
 import { DocumentsModule } from './documents/documents.module';
 import { MulterModule } from '@nestjs/platform-express';
-import { Document } from './documents/entities/document.entity';
+import { DocumentText } from './documents/entities/document.entity';
+import { ChatterBox } from './chatterbox/entities/chatterbox.entity';
+import { ChatterboxModule } from './chatterbox/chatterbox.module';
 
 @Module({
   imports: [
@@ -40,7 +42,8 @@ import { Document } from './documents/entities/document.entity';
         Notification,
         ContentNode,
         UserNodeRole,
-        Document,
+        DocumentText,
+        ChatterBox,
       ],
     }),
     MulterModule.register({ dest: './docs' }),
@@ -52,6 +55,7 @@ import { Document } from './documents/entities/document.entity';
     UserNodeRoleModule,
     PinecodeApiModule,
     DocumentsModule,
+    ChatterboxModule,
   ],
   controllers: [],
   providers: [

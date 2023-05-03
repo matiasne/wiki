@@ -7,10 +7,6 @@ export enum EnumContentNodeType {
   AUDIO = "AUDIO",
   LINK = "LINK",
   DOCUMENT = "DOCUMENT",
-}
-
-export default interface INewNodeDTO {
-  name: string;
-  type: EnumContentNodeType;
-  parentId: string;
+  CHATTERBOX = "CHATTERBOX",
+  URL = "URL",
 }

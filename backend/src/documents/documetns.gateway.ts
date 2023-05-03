@@ -1,5 +1,5 @@
 import { Logger, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { InjectRepository } from '@nestjs/typeorm';
 import {
   WebSocketGateway,
   SubscribeMessage,
@@ -8,6 +8,8 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
+import { Repository } from 'typeorm';
+import { DocumentText } from './entities/document.entity';
 
 @WebSocketGateway(3002, {
   cors: {
@@ -15,39 +17,71 @@ import { Socket, Server } from 'socket.io';
   },
 })
 export class DocumentsGateway {
+  constructor(
+    @InjectRepository(DocumentText)
+    private readonly documentsRepository: Repository<DocumentText>,
+  ) {}
+
   @WebSocketServer() server;
   private logger: Logger = new Logger('AppGateway');
 
-  @SubscribeMessage('get-document')
-  getDocument(
-    @MessageBody() payload: { userName: string; documentId: string },
+  @SubscribeMessage('connect-to-document')
+  async subscribeToDocument(
+    @MessageBody() payload: { userName: string; nodeId: string },
     @ConnectedSocket() socket: Socket,
-  ): void {
-    socket.join(payload.documentId);
-    //acá regsitra un color nuevo
+  ): Promise<void> {
+    const room = payload.nodeId;
+    socket.join(room);
 
-    socket.emit('load-document', ' ');
+    let doc = await this.documentsRepository.findOne({
+      where: { id: payload.nodeId },
+    });
+
+    if (doc) {
+      this.logger.debug('docExists', room);
+      socket.emit('conectado', doc.data);
+      socket.to(room).emit('load-document', doc.data);
+
+      socket.emit('load-document', doc.data);
+    } else {
+      this.logger.debug('doc not Exists');
+      doc = this.documentsRepository.create({
+        id: payload.nodeId,
+        data: '',
+      });
+      await this.documentsRepository.save(doc);
+      socket.emit('load-document', '');
+    }
+  }
+
+  @SubscribeMessage('start-editing')
+  async connectTODocument(
+    @MessageBody() payload: { userName: string; nodeId: string },
+    @ConnectedSocket() socket: Socket,
+  ): Promise<void> {
+    this.logger.debug('start-editing');
+
+    const room = payload.nodeId;
+
+    socket.to(room).emit('user-connect', payload.userName);
 
     socket.on('send-changes', (delta) => {
-      socket.broadcast.to(payload.documentId).emit('receive-changes', delta);
+      socket.broadcast.to(room).emit('receive-changes', delta);
     });
 
     socket.on('send-cursor-changes', (data) => {
-      this.logger.debug(payload);
-      socket.broadcast
-        .to(payload.documentId)
-        .emit('receive-cursor-changes', data);
+      socket.broadcast.to(room).emit('receive-cursor-changes', data);
     });
 
     socket.on('save-document', async (data) => {
-      // await Document.findByIdAndUpdate(documentId, { data })
+      let resp = await this.documentsRepository.update(payload.nodeId, {
+        data: data.ops[0].insert,
+      });
     });
 
-    socket.in(payload.documentId).emit('load-document', payload);
-
     socket.on('disconnect', (data) => {
-      socket.in(payload.documentId).emit('user-disconnect', payload.userName);
-      socket.leave(payload.documentId);
+      socket.in(room).emit('user-disconnect', payload.userName);
+      socket.leave(room);
     });
   }
 }

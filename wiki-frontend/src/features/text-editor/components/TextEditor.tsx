@@ -42,7 +42,7 @@ type TextEditorProps = {
 };
 
 export interface GetDocumentParametersDTO {
-  documentId: string;
+  nodeId: string;
   userName: string;
 }
 
@@ -63,24 +63,32 @@ export default function TextEditor({ id, username }: TextEditorProps) {
   useEffect(() => {
     if (socket == null || quill == null) return;
 
-    socket.once("load-document", (document) => {
-      quill.setContents(document);
-      quill.enable();
+    socket.on("conectado", () => {
+      console.log("conectado");
     });
 
-    let params: GetDocumentParametersDTO = {
-      documentId: id,
-      userName: username,
-    };
+    socket.on("connect", () => {
+      socket.on("load-document", (document) => {
+        quill.setText(document);
+        quill.enable();
 
-    socket.emit("get-document", params);
+        socket.emit("start-editing", params);
+      });
+
+      let params: GetDocumentParametersDTO = {
+        nodeId: id,
+        userName: username,
+      };
+
+      socket.emit("connect-to-document", params);
+    });
   }, [socket, quill, id]);
 
   useEffect(() => {
     if (socket == null || quill == null) return;
 
     const interval = setInterval(() => {
-      socket.emit("save-document", quill.getContents());
+      if (quill.isEnabled()) socket.emit("save-document", quill.getContents());
     }, SAVE_INTERVAL_MS);
 
     return () => {
@@ -187,10 +195,14 @@ export default function TextEditor({ id, username }: TextEditorProps) {
     });
 
     q.disable();
-    q.setText("Loading...");
     setQuill(q);
     setCursorsModule(q.getModule("cursors"));
   }, []);
 
-  return <div className="container" ref={wrapperRef}></div>;
+  return (
+    <>
+      {id}
+      <div className="container" ref={wrapperRef}></div>
+    </>
+  );
 }

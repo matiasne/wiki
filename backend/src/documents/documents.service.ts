@@ -3,34 +3,56 @@ import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
 import { ContentNodeService } from 'src/content-node/content-node.service';
 import { IAuthUser } from 'src/auth/interfaces/auth.interfaces';
-import { UpdateContentNodeDto } from 'src/content-node/dto/update-content-node.dto';
-import { Document } from './entities/document.entity';
+import { DocumentText } from './entities/document.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CreateContentNodeDto } from 'src/content-node/dto/create-content-node.dto';
+import { EnumContentNodeType } from 'src/content-node/dto/create-content-node.dto';
+import { UploadFileDto } from './dto/upload-file.dto';
+import {
+  EnumLangchainFilesType,
+  emojiUnifiedMap,
+} from 'src/shared/enum.langchain-files-types';
+import { extname } from 'path';
 
 @Injectable()
 export class DocumentsService {
   constructor(
-    @InjectRepository(Document)
-    private readonly documentUserCursorsRepository: Repository<Document>,
+    @InjectRepository(DocumentText)
+    private readonly documentUserCursorsRepository: Repository<DocumentText>,
     private contentNodeService: ContentNodeService,
   ) {}
-  async upload(
-    createDocumentDto: CreateDocumentDto,
-    file: any,
-    user: IAuthUser,
-  ) {
-    const node = await this.contentNodeService.findOne(
+  async upload(uploadFileDto: UploadFileDto, file: any, user: IAuthUser) {
+    let ext: any = extname(file.originalname);
+    let isAvailable = Object.values(EnumLangchainFilesType).includes(ext);
+
+    console.log(isAvailable);
+
+    if (!isAvailable) {
+      return {
+        message: 'File type not allowed',
+      };
+    }
+
+    const parentNode = await this.contentNodeService.findOne(
       user,
-      createDocumentDto.nodeId,
+      uploadFileDto.parentId,
     );
 
-    if (node) {
-      const updateNode: UpdateContentNodeDto = {
+    if (parentNode) {
+      const createContentNode: CreateContentNodeDto = {
+        parentId: uploadFileDto.parentId,
+        emojiUnified: emojiUnifiedMap[ext],
         data: file.filename,
+        name: file.originalname,
+        description: '',
+        type: EnumContentNodeType.FILE,
+        extension: ext,
       };
 
-      await this.contentNodeService.update(user, node.id, updateNode);
+      return await this.contentNodeService.create(user, createContentNode);
+
+      //   await this.contentNodeService.update(user, node.id, updateNode);
     }
   }
 
@@ -42,7 +64,7 @@ export class DocumentsService {
     return `This action returns all documents`;
   }
 
-  findOne(id: string) {
+  findByNodeId(id: string) {
     this.documentUserCursorsRepository.findOne({ where: { id: id } });
   }
 

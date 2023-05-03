@@ -16,7 +16,7 @@ export class PinecodeApiService {
   public pinecone = new PineconeClient();
   private testIndex = null;
 
-  constructor(private openaiService: OpenaiApiService) {
+  constructor() {
     this.init();
   }
 

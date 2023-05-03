@@ -1,8 +1,9 @@
-export default interface INodeRootResponseDTO {
+export default interface INodeResponseDTO {
   createDateTime: string;
   data: string;
+  extension: string;
   description: string;
-  icon: string;
+  emojiUnified: string;
   id: string;
   name: string;
   order: string;

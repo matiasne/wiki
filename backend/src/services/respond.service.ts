@@ -17,7 +17,9 @@ export class RespondService {
 
   async respondToQuestionTest(chatDto: ChatDto) {
     return new Promise(async (resolve, reject) => {
-      const question = chatDto.question.trim().replace(/\n./g, ' ');
+      console.log('chatDto', chatDto);
+
+      const question = chatDto.message.trim().replace(/\n./g, ' ');
 
       const index = await this.pinecodeApiService.getIndex();
 
@@ -26,7 +28,7 @@ export class RespondService {
         {
           pineconeIndex: index,
           textKey: 'text',
-          namespace: process.env.PINECONE_NAME_SPACE,
+          namespace: chatDto.nodeId,
         },
       );
 

@@ -27,7 +27,6 @@ export class JwtStrategyCognito extends PassportStrategy(Strategy) {
   }
 
   public async validate(payload: any) {
-    console.log('JwtStrategyCognito.validate() payload:', payload);
     if (payload.email) {
       const userData = await this.usersService.getByEmail(payload.email);
       if (userData) {

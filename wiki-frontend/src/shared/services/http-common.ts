@@ -7,8 +7,6 @@ let httpClient = axios.create({
   baseURL: BaseURL,
   headers: {
     "Content-type": "application/json",
-    Authorization:
-      "Bearer " + localStorage ? localStorage.getItem("token") : null,
   },
 });
 

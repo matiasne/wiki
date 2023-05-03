@@ -15,7 +15,6 @@ import { IAuthUser } from 'src/auth/interfaces/auth.interfaces';
 import { HttpExceptionFilter } from 'src/shared/http-exceptions.filter';
 import { DepartmentsService } from './departments.service';
 import { CreateDepartmentDto } from './dto/create-department.dto';
-import { UpdateDepartmentDto } from './dto/update-department.dto';
 
 @Controller('departments')
 @UseFilters(HttpExceptionFilter)
@@ -44,7 +43,7 @@ export class DepartmentsController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateDepartmentDto: UpdateDepartmentDto,
+    @Body() updateDepartmentDto: CreateDepartmentDto,
   ) {
     return this.departmentsService.update(id, updateDepartmentDto);
   }

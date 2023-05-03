@@ -36,20 +36,23 @@ export class DocumentsController {
         filename: (req, file, cb) => {
           const uniqueSufix =
             Date.now() + '-' + Math.round(Math.random() * 1e9);
+          let name = file.originalname.substring(
+            0,
+            file.originalname.lastIndexOf('.'),
+          );
           const ext = extname(file.originalname);
-          const filename = `${file.originalname}-${uniqueSufix}${ext}`;
+          const filename = `${name}-${uniqueSufix}${ext}`;
           cb(null, filename);
         },
       }),
     }),
   )
-  uploadFile(
+  async uploadFile(
     @AuthUser() user: IAuthUser,
     @UploadedFile() file: Express.Multer.File,
     @Body() createDocumentDto: CreateDocumentDto,
   ) {
-    console.log(file);
-    this.documentsService.upload(createDocumentDto, file, user);
+    return await this.documentsService.upload(createDocumentDto, file, user);
   }
 
   @Post()
@@ -67,7 +70,7 @@ export class DocumentsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.documentsService.findOne(id);
+    return this.documentsService.findByNodeId(id);
   }
 
   @Patch(':id')

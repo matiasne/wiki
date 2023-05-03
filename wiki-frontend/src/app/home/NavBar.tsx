@@ -70,22 +70,6 @@ class NavBar extends React.Component<HomeProps, HomeState> {
       <AppBar position="fixed">
         <Container maxWidth="xl">
           <Toolbar>
-            <Link href="/home/my-department">
-              <IconButton
-                size="large"
-                edge="start"
-                color="inherit"
-                aria-label="menu"
-                sx={{ mr: 2 }}
-              >
-                <HomeIcon />
-              </IconButton>
-            </Link>
-
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              LOGO
-            </Typography>
-
             <div>
               <Link href="/home/notifications">
                 <IconButton

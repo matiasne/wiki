@@ -1,20 +1,11 @@
 "use client";
-import { OutlinedButton } from "@/shared/components/OutlinedButton";
 import { SmallOutlinedButton } from "@/shared/components/SmallOutlinedButton";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  TextField,
-  DialogActions,
-  Button,
-} from "@mui/material";
 import { useState } from "react";
-import NodeService from "../services/node.service";
-import INewNodeDTO, { EnumContentNodeType } from "../models/newFolderDTO";
-import { useForm } from "react-hook-form";
-import AddNewFolderModal from "./tree-item/AddNewFolderModal";
-import { useUpdateTreeView } from "./NodesTreeView";
+import FolderNodeFormModal from "./folder-tree-item/FolderNodeFormModal";
+import { useUpdateTreeViewRoot } from "./NodesTreeView";
+import FolderNode from "../models/folderNode";
+import ChatterboxNodeFormModal from "./chatterbox-tree-item/ChatterboxNodeFormModal";
+import ChatterboxNode from "../models/chatterboxNode";
 
 export interface INewRooTreeNodeProps {
   onSaved: () => void;
@@ -22,7 +13,7 @@ export interface INewRooTreeNodeProps {
 
 export default function NewRooTreeNode(props: INewRooTreeNodeProps) {
   const [openDialog, setOpenDialog] = useState(false);
-  const updateTreeView = useUpdateTreeView();
+  const updateTreeView = useUpdateTreeViewRoot();
   return (
     <>
       <SmallOutlinedButton
@@ -30,10 +21,9 @@ export default function NewRooTreeNode(props: INewRooTreeNodeProps) {
           setOpenDialog(true);
         }}
       >
-        Nueva Carpeta
+        New Chatterbox
       </SmallOutlinedButton>
-      <AddNewFolderModal
-        parentId="0"
+      <ChatterboxNodeFormModal
         open={openDialog}
         onClose={() => {
           setOpenDialog(false);
@@ -43,6 +33,7 @@ export default function NewRooTreeNode(props: INewRooTreeNodeProps) {
           updateTreeView();
           props.onSaved();
         }}
+        node={new ChatterboxNode()}
       />
     </>
   );

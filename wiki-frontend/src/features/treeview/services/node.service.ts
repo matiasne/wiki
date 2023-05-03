@@ -1,5 +1,5 @@
 import BaseCRUD from "@/shared/services/baseCRUD.service";
-import INewNodeDTO from "../models/newFolderDTO";
+import INewNodeDTO from "../models/nodeDTO";
 import httpClient from "@/shared/services/http-common";
 
 class NodeService extends BaseCRUD {
@@ -9,6 +9,10 @@ class NodeService extends BaseCRUD {
 
   async createNew(newNode: INewNodeDTO): Promise<void> {
     return await httpClient.post(`${this.urlBase}`, newNode);
+  }
+
+  async getAll(): Promise<any> {
+    return await httpClient.get(`${this.urlBase}`);
   }
 
   async getRoot(): Promise<any> {

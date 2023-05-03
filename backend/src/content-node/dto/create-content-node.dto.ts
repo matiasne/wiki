@@ -1,6 +1,7 @@
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
 export enum EnumContentNodeType {
+  CHATTERBOX = 'CHATTERBOX',
   FOLDER = 'FOLDER',
   FILE = 'FILE',
   RICH_TEXT = 'RICH_TEXT',
@@ -9,6 +10,7 @@ export enum EnumContentNodeType {
   AUDIO = 'AUDIO',
   LINK = 'LINK',
   DOCUMENT = 'DOCUMENT',
+  URL = 'URL',
 }
 
 export class CreateContentNodeDto {
@@ -16,16 +18,20 @@ export class CreateContentNodeDto {
   @IsString()
   parentId: string;
 
-  order: string;
+  @IsString()
+  emojiUnified: string;
 
+  @IsString()
   data: string;
 
-  icon: string;
+  @IsString()
+  extension?: string;
 
   @IsNotEmpty()
   @IsString()
   name: string;
 
+  @IsString()
   description: string;
 
   @IsNotEmpty()

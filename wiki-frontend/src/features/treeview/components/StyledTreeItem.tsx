@@ -2,31 +2,17 @@
 import * as React from "react";
 import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import TreeView from "@mui/lab/TreeView";
 import TreeItem, { TreeItemProps, treeItemClasses } from "@mui/lab/TreeItem";
 import Typography from "@mui/material/Typography";
-import MailIcon from "@mui/icons-material/Mail";
-import DeleteIcon from "@mui/icons-material/Delete";
-import Label from "@mui/icons-material/Label";
-import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
-import InfoIcon from "@mui/icons-material/Info";
-import ForumIcon from "@mui/icons-material/Forum";
-import LocalOfferIcon from "@mui/icons-material/LocalOffer";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import ArrowRightIcon from "@mui/icons-material/ArrowRight";
+
 import { SvgIconProps } from "@mui/material/SvgIcon";
-import { Popover, TextField } from "@mui/material";
+import { Button, Popover, TextField } from "@mui/material";
 import { useContext, useEffect, useRef } from "react";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
-import PopupItem from "../PopupItem";
-import { useMutation } from "@tanstack/react-query";
-import nodeService from "../../services/node.service";
-import { useUpdateTreeView } from "../NodesTreeView";
-import INewNodeDTO from "../../models/newFolderDTO";
+
+import PopupItem from "./PopupItem";
+import nodeService from "../services/node.service";
+import { Emoji } from "emoji-picker-react";
 
 declare module "react" {
   interface CSSProperties {
@@ -38,17 +24,20 @@ declare module "react" {
 type ActionButtonTreeItem = {
   labelIcon: React.ElementType<SvgIconProps>;
   labelText: string;
-  onClick: () => void;
+  onClick: (event: any) => void;
 };
 
 type StyledTreeItemProps = TreeItemProps & {
   bgColor?: string;
   color?: string;
-  labelIcon: React.ElementType<SvgIconProps>;
+  emojiUnified: any;
   labelInfo?: string;
   labelText: string;
+  editing: boolean;
   clickHandler: () => void;
   actionbuttons?: ActionButtonTreeItem[];
+  parentrefetch: () => void;
+  onEmojiClick: (event: any) => void;
 };
 
 const StyledTreeItemRoot = styled(TreeItem)(({ theme }) => ({
@@ -89,23 +78,17 @@ export default function StyledTreeItem(props: StyledTreeItemProps) {
   );
   const [hover, setHover] = React.useState(false);
   const [editingName, setEditingName] = React.useState(false);
-  const [label, setLabel] = React.useState(props.labelText);
-
-  const updatetree = useUpdateTreeView();
+  const [editingLabel, setEditingLabel] = React.useState(props.labelText);
 
   const openedOptions = Boolean(anchorEl);
 
-  const mutationDelete = useMutation({
-    mutationFn: async () => {
-      await nodeService.delete(props.nodeId);
-      updatetree();
-      return true;
-    },
-  });
+  useEffect(() => {
+    setEditingLabel(props.labelText);
+  }, [props.labelText]);
 
   useEffect(() => {
-    setLabel(props.labelText);
-  }, [props.labelText]);
+    setEditingName(props.editing);
+  }, [props.editing]);
 
   useOutsideAlerter(textInputRef);
 
@@ -133,14 +116,18 @@ export default function StyledTreeItem(props: StyledTreeItemProps) {
     setHover(false);
   };
 
-  const keyPress = (e: any) => {
+  const keyPress = async (e: any) => {
     if (e.keyCode == 13) {
       console.log("value", e.target.value);
       setEditingName(false);
 
-      nodeService.update(props.nodeId, { name: e.target.value });
+      let resp = await nodeService.update(props.nodeId, {
+        name: e.target.value,
+      });
+      props.parentrefetch();
+      console.log(resp);
     } else {
-      setLabel(e.target.value);
+      setEditingLabel(e.target.value);
     }
   };
 
@@ -156,10 +143,11 @@ export default function StyledTreeItem(props: StyledTreeItemProps) {
   const {
     bgColor,
     color,
-    labelIcon: LabelIcon,
+    emojiUnified,
     labelInfo,
     labelText,
     clickHandler,
+    onEmojiClick,
     ...other
   } = props;
 
@@ -178,7 +166,11 @@ export default function StyledTreeItem(props: StyledTreeItemProps) {
           onMouseLeave={onLeave}
           onClick={() => clickHandler()}
         >
-          <Box component={LabelIcon} color="inherit" sx={{ mr: 1 }} />
+          <Button onClick={(e) => onEmojiClick(e)}>
+            <Emoji
+              unified={props.emojiUnified ? props.emojiUnified : "1f4c1"}
+            />
+          </Button>
 
           {editingName ? (
             <>
@@ -187,9 +179,9 @@ export default function StyledTreeItem(props: StyledTreeItemProps) {
                 id="outlined-basic"
                 variant="outlined"
                 size="small"
-                value={label}
+                value={editingLabel}
                 // onClick={(e?: any) => e.stopPropagation()}
-                onChange={(e) => setLabel(e.target.value)}
+                onChange={(e) => setEditingLabel(e.target.value)}
                 onKeyDown={(e) => keyPress(e)}
               />
             </>
@@ -198,7 +190,7 @@ export default function StyledTreeItem(props: StyledTreeItemProps) {
               variant="body2"
               sx={{ fontWeight: "inherit", flexGrow: 1 }}
             >
-              {label}
+              {props.labelText}
             </Typography>
           )}
 
@@ -236,16 +228,6 @@ export default function StyledTreeItem(props: StyledTreeItemProps) {
                       width: "150px",
                     }}
                   >
-                    <PopupItem
-                      labelIcon={EditIcon}
-                      labelText={"Renombrar"}
-                      onClick={(event?: any) => {
-                        event.stopPropagation();
-                        closeOptions();
-                        setEditingName(true);
-                      }}
-                    />
-
                     {props.actionbuttons?.map((actionButton, i) => {
                       return (
                         <PopupItem
@@ -255,20 +237,11 @@ export default function StyledTreeItem(props: StyledTreeItemProps) {
                           onClick={(event?: any) => {
                             event.stopPropagation();
                             closeOptions();
-                            actionButton.onClick();
+                            actionButton.onClick(event);
                           }}
                         />
                       );
                     })}
-                    <PopupItem
-                      labelIcon={DeleteOutlineIcon}
-                      labelText={"Delete"}
-                      onClick={async (event?: any) => {
-                        event.stopPropagation();
-                        closeOptions();
-                        mutationDelete.mutate();
-                      }}
-                    />
                   </Box>
                 </Popover>
               </>
