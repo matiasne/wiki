@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
 import { ContentNodeService } from 'src/content-node/content-node.service';
@@ -14,6 +14,9 @@ import {
   emojiUnifiedMap,
 } from 'src/shared/enum.langchain-files-types';
 import { extname } from 'path';
+import { PinecodeApiService } from 'src/services/pinecode.service';
+import { IngestDataService } from 'src/services/ingest-data.service';
+import { CustomException } from 'src/shared/custom-http-exception';
 
 @Injectable()
 export class DocumentsService {
@@ -21,38 +24,42 @@ export class DocumentsService {
     @InjectRepository(DocumentText)
     private readonly documentUserCursorsRepository: Repository<DocumentText>,
     private contentNodeService: ContentNodeService,
+    private ingestService: IngestDataService,
   ) {}
   async upload(uploadFileDto: UploadFileDto, file: any, user: IAuthUser) {
-    let ext: any = extname(file.originalname);
-    let isAvailable = Object.values(EnumLangchainFilesType).includes(ext);
+    try {
+      let ext: any = extname(file.originalname);
+      let isAvailable = Object.values(EnumLangchainFilesType).includes(ext);
 
-    console.log(isAvailable);
+      if (!isAvailable) {
+        throw new CustomException('File type not allowed', HttpStatus.CONFLICT);
+      }
 
-    if (!isAvailable) {
-      return {
-        message: 'File type not allowed',
-      };
-    }
+      const parentNode = await this.contentNodeService.findOne(
+        user,
+        uploadFileDto.parentId,
+      );
 
-    const parentNode = await this.contentNodeService.findOne(
-      user,
-      uploadFileDto.parentId,
-    );
+      if (parentNode) {
+        const createContentNode: CreateContentNodeDto = {
+          parentId: uploadFileDto.parentId,
+          emojiUnified: emojiUnifiedMap[ext],
+          data: file.filename,
+          name: file.originalname,
+          description: '',
+          type: EnumContentNodeType.FILE,
+          extension: ext,
+        };
 
-    if (parentNode) {
-      const createContentNode: CreateContentNodeDto = {
-        parentId: uploadFileDto.parentId,
-        emojiUnified: emojiUnifiedMap[ext],
-        data: file.filename,
-        name: file.originalname,
-        description: '',
-        type: EnumContentNodeType.FILE,
-        extension: ext,
-      };
+        let node = await this.contentNodeService.create(
+          user,
+          createContentNode,
+        );
 
-      return await this.contentNodeService.create(user, createContentNode);
-
-      //   await this.contentNodeService.update(user, node.id, updateNode);
+        return node;
+      }
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -72,7 +79,9 @@ export class DocumentsService {
     this.documentUserCursorsRepository.update(id, updateDocumentDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} document`;
+  remove(fileName: string) {
+    //  var fs = require('fs');
+    // var filePath = __dirname + '/../../uploads/' + fileName;
+    //  fs.unlinkSync(filePath);
   }
 }

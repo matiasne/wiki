@@ -14,13 +14,14 @@ import { ContentNodeModule } from './content-node/content-node.module';
 import { UserNodeRoleModule } from './user-node-rol/user-node-rol.module';
 import { ContentNode } from './content-node/entities/content-node.entity';
 import { UserNodeRole } from './user-node-rol/entities/user-node-rol.entity';
-import { PinecodeApiModule } from './pinecode-api/pinecode-api.module';
+import { OpenAIModule } from './openai/openai.module';
 import { DocumentsModule } from './documents/documents.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { DocumentText } from './documents/entities/document.entity';
 import { ChatterBox } from './chatterbox/entities/chatterbox.entity';
 import { ChatterboxModule } from './chatterbox/chatterbox.module';
-
+import { Comment } from './comments/entities/comment.entity';
+import { CommentsModule } from './comments/comments.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -44,6 +45,7 @@ import { ChatterboxModule } from './chatterbox/chatterbox.module';
         UserNodeRole,
         DocumentText,
         ChatterBox,
+        Comment,
       ],
     }),
     MulterModule.register({ dest: './docs' }),
@@ -53,9 +55,10 @@ import { ChatterboxModule } from './chatterbox/chatterbox.module';
     UserDepartmentRolModule,
     ContentNodeModule,
     UserNodeRoleModule,
-    PinecodeApiModule,
+    OpenAIModule,
     DocumentsModule,
     ChatterboxModule,
+    CommentsModule,
   ],
   controllers: [],
   providers: [

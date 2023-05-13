@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CreateUploadTextPinecodeDbDto {
+export class ImageDescriptorDto {
   @IsNotEmpty()
   @IsString()
-  text: string;
+  url: string;
 }

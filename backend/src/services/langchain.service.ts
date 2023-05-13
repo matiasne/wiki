@@ -4,18 +4,17 @@ import { PineconeStore } from 'langchain/vectorstores';
 import { PromptTemplate } from 'langchain/prompts';
 import { CallbackManager } from 'langchain/callbacks';
 import { Global, Injectable } from '@nestjs/common';
-import { OpenaiApiService } from './openai-api.service';
-import { PinecodeApiService } from './pinecode-api.service';
+import { PinecodeApiService } from './pinecode.service';
 import { OpenAIEmbeddings } from 'langchain/embeddings';
-import { ChatDto } from 'src/pinecode-api/dto/chat.dto';
+import { ChatDto } from 'src/chatterbox/dto/chat.dto';
 import { LLMResult } from 'langchain/dist/schema';
 
 @Global()
 @Injectable()
-export class RespondService {
+export class LangChainService {
   constructor(private pinecodeApiService: PinecodeApiService) {}
 
-  async respondToQuestionTest(chatDto: ChatDto) {
+  async respondToQuestion(chatDto: ChatDto) {
     return new Promise(async (resolve, reject) => {
       console.log('chatDto', chatDto);
 
@@ -62,10 +61,7 @@ export class RespondService {
     let s = '';
     const callbackManager = CallbackManager.fromHandlers({
       async handleLLMNewToken(token: string) {
-        //  onTokenStream(token);
-        console.clear();
         s += token;
-        console.log(s);
       },
 
       async handleLLMEnd(output: LLMResult) {
@@ -112,7 +108,7 @@ Standalone question:`);
 
   private getQAprompt() {
     return PromptTemplate.fromTemplate(
-      `You are an Spanish AI assistant providing helpful advice. You are given the following extracted parts of a long document and a question. Provide a conversational answer based on the context provided.
+      `You are an AI assistant providing helpful advice. You are given the following extracted parts of a long document and a question. Provide a conversational answer based on the context provided.
   You should only provide hyperlinks that reference the context below. Do NOT make up hyperlinks.
   If you can't find the answer in the context below, just say "Hmm, I'm not sure." Don't try to make up an answer.
   If the question is not related to the context, politely respond that you are tuned to only answer questions that are related to the context.

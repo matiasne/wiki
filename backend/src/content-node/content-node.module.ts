@@ -5,6 +5,8 @@ import { ContentNode } from './entities/content-node.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from 'src/users/users.module';
 import { UserNodeRoleModule } from 'src/user-node-rol/user-node-rol.module';
+import { PinecodeApiService } from 'src/services/pinecode.service';
+import { IngestDataService } from 'src/services/ingest-data.service';
 
 @Module({
   imports: [
@@ -13,7 +15,7 @@ import { UserNodeRoleModule } from 'src/user-node-rol/user-node-rol.module';
     UserNodeRoleModule,
   ],
   controllers: [ContentNodeController],
-  providers: [ContentNodeService],
+  providers: [ContentNodeService, PinecodeApiService, IngestDataService],
   exports: [ContentNodeService],
 })
 export class ContentNodeModule {}

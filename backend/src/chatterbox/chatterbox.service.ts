@@ -11,6 +11,8 @@ import {
   CreateContentNodeDto,
   EnumContentNodeType,
 } from 'src/content-node/dto/create-content-node.dto';
+import { IAuthUser } from 'src/auth/interfaces/auth.interfaces';
+import { UpdateContentNodeDto } from 'src/content-node/dto/update-content-node.dto';
 
 @Injectable()
 export class ChatterboxService {
@@ -33,6 +35,7 @@ export class ChatterboxService {
       type: EnumContentNodeType.CHATTERBOX,
     };
 
+    console.log('createContentNode', createContentNode);
     await this.contentNodeService.create(user, createContentNode);
 
     return await this.chatterboxRepository.create(createChatterboxDto);
@@ -44,11 +47,25 @@ export class ChatterboxService {
     });
   }
 
-  async update(id: string, updateChatterboxDto: UpdateChatterboxDto) {
+  async update(
+    user: IAuthUser,
+    id: string,
+    updateChatterboxDto: UpdateChatterboxDto,
+  ) {
+    console.log('id', id);
+    console.log('updateChatterboxDto', updateChatterboxDto);
+
+    await this.contentNodeService.update(
+      user,
+      id,
+      updateChatterboxDto as UpdateContentNodeDto,
+    );
+
     return await this.chatterboxRepository.update(id, updateChatterboxDto);
   }
 
-  async remove(id: string) {
+  async remove(user, id: string) {
+    this.contentNodeService.remove(user, id);
     return await this.chatterboxRepository.delete(id);
   }
 }

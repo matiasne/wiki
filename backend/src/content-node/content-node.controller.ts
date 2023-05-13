@@ -28,7 +28,18 @@ export class ContentNodeController {
     @AuthUser() user: IAuthUser,
     @Body() createContentNodeDto: CreateContentNodeDto,
   ) {
-    return this.contentNodeService.create(user, createContentNodeDto);
+    let node = this.contentNodeService.create(user, createContentNodeDto);
+
+    if (node) {
+      return {
+        data: node,
+        message: 'Node created successfully',
+      };
+    }
+
+    return {
+      message: 'Error Creating Node',
+    };
   }
 
   @Get()
@@ -62,6 +73,12 @@ export class ContentNodeController {
 
   @Delete(':id')
   remove(@AuthUser() user: IAuthUser, @Param('id') id: string) {
-    return this.contentNodeService.remove(user, id);
+    try {
+      return this.contentNodeService.remove(user, id);
+    } catch (e) {
+      return {
+        message: e.message,
+      };
+    }
   }
 }

@@ -6,6 +6,9 @@ export enum EnumLangchainFilesType {
   json = '.json',
   srt = '.srt',
   url = 'url',
+  png = '.png',
+  jpg = '.jpg',
+  jpeg = '.jpeg',
 }
 
 export const emojiUnifiedMap = {

@@ -6,21 +6,17 @@ import { PineconeStore } from 'langchain/vectorstores';
 import {
   CSVLoader,
   CheerioWebBaseLoader,
-  DirectoryLoader,
   DocxLoader,
   JSONLoader,
   SRTLoader,
   TextLoader,
-  UnstructuredLoader,
 } from 'langchain/document_loaders';
-import { PinecodeApiService } from './pinecode-api.service';
+import { PinecodeApiService } from './pinecode.service';
 import { CustomPDFLoader } from 'src/utils/customPDFLoader';
-import { AuthGuard } from '@nestjs/passport';
 import { IAuthUser } from 'src/auth/interfaces/auth.interfaces';
-import { ContentNodeService } from 'src/content-node/content-node.service';
 import { EnumContentNodeType } from 'src/content-node/dto/create-content-node.dto';
-import { extname } from 'path';
 import { EnumLangchainFilesType } from 'src/shared/enum.langchain-files-types';
+import { ContentNode } from 'src/content-node/entities/content-node.entity';
 
 @Global()
 @Injectable()
@@ -29,77 +25,65 @@ export class IngestDataService {
 
   private basePath = './uploads/';
 
-  constructor(
-    private pinecodeApiService: PinecodeApiService,
-    private contentNodeService: ContentNodeService,
-  ) {}
+  constructor(private pinecodeApiService: PinecodeApiService) {}
 
-  async IngestNodeData(nodeId: string, user: IAuthUser) {
-    const namespace = nodeId;
+  async processNodeData(
+    user: IAuthUser,
+    node: ContentNode,
+    rootNodeId: string,
+  ) {
+    if (node.type == EnumContentNodeType.FILE) {
+      let loader: any;
 
-    this.contentNodeService
-      .findDescendantsTree(user, nodeId)
-      .then(async (node) => {
-        if (node && node.childrens && node.childrens.length > 0) {
-          //process file that fit in the unstructured data
+      if (node.extension == EnumLangchainFilesType.pdf) {
+        loader = new CustomPDFLoader(this.basePath + node.data);
+      }
 
-          //process plain text
-          node.childrens.map(async (n) => {
-            if (n.type == EnumContentNodeType.FILE) {
-              let loader: any;
+      if (node.extension == EnumLangchainFilesType.csv) {
+        loader = new CSVLoader(this.basePath + node.data);
+      }
 
-              if (n.extension == EnumLangchainFilesType.pdf) {
-                loader = new CustomPDFLoader(this.basePath + n.data);
-              }
+      if (node.extension == EnumLangchainFilesType.json) {
+        loader = new JSONLoader(this.basePath + node.data);
+      }
 
-              if (n.extension == EnumLangchainFilesType.csv) {
-                loader = new CSVLoader(this.basePath + n.data);
-              }
+      if (node.extension == EnumLangchainFilesType.docx) {
+        loader = new DocxLoader(this.basePath + node.data);
+      }
 
-              if (n.extension == EnumLangchainFilesType.json) {
-                loader = new JSONLoader(this.basePath + n.data);
-              }
+      if (node.extension == EnumLangchainFilesType.txt) {
+        loader = new TextLoader(this.basePath + node.data);
+      }
 
-              if (n.extension == EnumLangchainFilesType.docx) {
-                loader = new DocxLoader(this.basePath + n.data);
-              }
+      if (node.extension == EnumLangchainFilesType.srt) {
+        loader = new SRTLoader(node.data);
+      }
 
-              if (n.extension == EnumLangchainFilesType.txt) {
-                loader = new TextLoader(this.basePath + n.data);
-              }
+      if (
+        node.extension == EnumLangchainFilesType.png ||
+        node.extension == EnumLangchainFilesType.jpg ||
+        node.extension == EnumLangchainFilesType.jpeg
+      ) {
+      }
 
-              if (n.extension == EnumLangchainFilesType.srt) {
-                loader = new SRTLoader(n.data);
-              }
+      if (loader) {
+        const docs = await loader.load();
+        this.processDocs(docs, rootNodeId, node.id);
+      }
+    }
 
-              if (loader) {
-                const docs = await loader.load();
-                this.processDocs(docs, namespace, node.id);
-              }
-            }
+    if (node.type == EnumContentNodeType.URL) {
+      const urlloader = new CheerioWebBaseLoader(node.data);
+      const urldocs = await urlloader.load();
+      this.processDocs(urldocs, rootNodeId, node.id);
+    }
 
-            if (n.type == EnumContentNodeType.URL) {
-              try {
-                console.log(n.data);
-                const urlloader = new CheerioWebBaseLoader(n.data);
-                const urldocs = await urlloader.load();
-                console.log(urldocs);
-                this.processDocs(urldocs, namespace, node.id);
-              } catch (err) {
-                console.log(err);
-                console.log(err.stack);
-              }
-            }
-
-            if (n.type == EnumContentNodeType.RICH_TEXT) {
-              this.processText(n.data, namespace, node.id);
-            }
-          });
-        }
-      });
+    if (node.type == EnumContentNodeType.RICH_TEXT) {
+      this.processText(node.data, rootNodeId, node.id);
+    }
   }
 
-  async processDocs(docs: any, namespace: string, parentId: string) {
+  async processDocs(docs: any, namespace: string, nodeId: string) {
     try {
       const textSplitter = new RecursiveCharacterTextSplitter({
         chunkSize: 1000,
@@ -116,8 +100,7 @@ export class IngestDataService {
       await PineconeStore.fromDocuments(docsSplits, embeddings, {
         pineconeIndex: index,
         filter: {
-          nodeId: namespace,
-          parentNode: parentId,
+          nodeId: nodeId,
         },
         namespace: namespace,
         textKey: 'text',
@@ -127,7 +110,7 @@ export class IngestDataService {
     }
   }
 
-  private async processText(data: string, namespace: string, parenId: string) {
+  private async processText(data: string, namespace: string, nodeId: string) {
     const textSplitter = new RecursiveCharacterTextSplitter({
       chunkSize: 1000,
       chunkOverlap: 200,
@@ -144,19 +127,19 @@ export class IngestDataService {
     let metadata = docs.map((doc, i) => {
       return {
         id: i,
-        nodeId: namespace,
-        parentNode: parenId,
+        nodeId: nodeId,
       };
     });
 
     await PineconeStore.fromTexts(docs, metadata, embeddings, {
       pineconeIndex: index,
       filter: {
-        nodeId: namespace,
-        parentNode: parenId,
+        nodeId: nodeId,
       },
       namespace: namespace,
       textKey: 'text',
     });
   }
+
+  async IMGLoader(imgURL: string) {}
 }

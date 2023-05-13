@@ -1,5 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { CreateContentNodeDto } from './dto/create-content-node.dto';
+import { HttpStatus, Injectable } from '@nestjs/common';
+import {
+  CreateContentNodeDto,
+  EnumContentNodeType,
+} from './dto/create-content-node.dto';
 import { UpdateContentNodeDto } from './dto/update-content-node.dto';
 import { IAuthUser } from 'src/auth/interfaces/auth.interfaces';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +10,10 @@ import { ContentNode } from './entities/content-node.entity';
 import { IsNull, Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { UserNodeRoleService } from 'src/user-node-rol/user-node-rol.service';
+import { PinecodeApiService } from 'src/services/pinecode.service';
+import { DocumentsService } from 'src/documents/documents.service';
+import { CustomException } from 'src/shared/custom-http-exception';
+import { IngestDataService } from 'src/services/ingest-data.service';
 
 @Injectable()
 export class ContentNodeService {
@@ -15,17 +22,19 @@ export class ContentNodeService {
     private readonly contentNodeRepository: Repository<ContentNode>,
     private usersService: UsersService,
     private userNodeRolService: UserNodeRoleService,
+    private pinecodeApiService: PinecodeApiService,
+    private ingestService: IngestDataService,
   ) {}
 
   async create(user: IAuthUser, createContentNodeDto: CreateContentNodeDto) {
-    console.log(createContentNodeDto);
-
+    console.log(user.id);
     const creator = await this.usersService.getById(user.id);
 
     if (await this.checkIfNodeNameExists(user, createContentNodeDto)) {
-      return {
-        message: 'Node with this name already exists',
-      };
+      throw new CustomException(
+        'Node name already exists',
+        HttpStatus.CONFLICT,
+      );
     }
 
     const newNode: ContentNode =
@@ -38,16 +47,22 @@ export class ContentNodeService {
       );
 
       if (parentNode == null) {
-        return {
-          message: 'Parent node not found or user does not have access to it',
-        };
+        return null;
       }
       newNode.parent = parentNode;
     }
 
     let node: ContentNode = await this.contentNodeRepository.save(newNode);
-
     this.userNodeRolService.addUserAsCreator(creator, node);
+    console.log(node.id);
+    if (
+      createContentNodeDto.type != EnumContentNodeType.CHATTERBOX &&
+      createContentNodeDto.type != EnumContentNodeType.FOLDER
+    ) {
+      let chattreboxNode = await this.findChattrebocOfNodeTree(node.id);
+      console.log(chattreboxNode.id);
+      this.ingestService.processNodeData(user, node, chattreboxNode.id);
+    }
 
     return node;
   }
@@ -88,17 +103,39 @@ export class ContentNodeService {
     return data;
   }
 
-  async findDescendantsTree(user: IAuthUser, id: string) {
-    const parameters = {
-      userId: user.id,
-    };
-
+  async findDescendantsTree(
+    user: IAuthUser,
+    id: string,
+  ): Promise<ContentNode[]> {
     let node = await this.contentNodeRepository.findOne({ where: { id: id } });
 
-    return await this.contentNodeRepository.manager
+    let nodeData: ContentNode = await this.contentNodeRepository.manager
       .getTreeRepository(ContentNode)
       .findDescendantsTree(node);
-    // returns all direct subcategories (without its nested categories) of a parentCategory
+
+    return nodeData.childrens;
+  }
+
+  async findParentTree(id: string) {
+    let node = await this.contentNodeRepository.findOne({ where: { id: id } });
+
+    let res = await this.contentNodeRepository.manager
+      .getTreeRepository(ContentNode)
+      .findAncestors(node);
+
+    return res[0]; //el primero es el nodo mismo no se poruqe es así
+  }
+
+  async findChattrebocOfNodeTree(id: string) {
+    let node = await this.contentNodeRepository.findOne({ where: { id: id } });
+
+    let res = await this.contentNodeRepository.manager
+      .getTreeRepository(ContentNode)
+      .findAncestors(node);
+
+    console.log(res);
+
+    return res.find((r) => r.type == EnumContentNodeType.CHATTERBOX); //el primero es el nodo mismo no se poruqe es así
   }
 
   async findOne(user: IAuthUser, id: string) {
@@ -170,20 +207,17 @@ export class ContentNodeService {
 
   async remove(user: IAuthUser, id: string) {
     let node: ContentNode = await this.findOne(user, id);
+
+    let parentNode = await this.findParentTree(node.id);
+
+    console.log('parentNode', parentNode);
     if (node == null) {
       return {
         message: 'Node not found or user does not have access to it',
       };
     }
-    try {
-      return await this.contentNodeRepository.delete(node.id);
-    } catch (e) {
-      console.log(e);
-      return {
-        message:
-          'Node could not be deleted the node does not exist or has children',
-      };
-    }
+
+    this.removeTreeNode(user, node, parentNode ? parentNode.id : '0');
   }
 
   async checkIfNodeNameExists(
@@ -198,7 +232,7 @@ export class ContentNodeService {
         contentNodeDto.parentId,
       );
 
-      let exist = await nodeDescendants.childrens.find(
+      let exist = await nodeDescendants.find(
         (element) => element.name == contentNodeDto.name,
       );
       if (exist) {
@@ -210,11 +244,51 @@ export class ContentNodeService {
       let exist = await nodeDescendants.find(
         (element) => element.name == contentNodeDto.name,
       );
-      console.log(exist);
+
       if (exist) {
         return true;
       }
     }
     return false;
+  }
+
+  private async removeTreeNode(user, node: ContentNode, parentNodeId: string) {
+    if (
+      node.type == EnumContentNodeType.FOLDER ||
+      node.type == EnumContentNodeType.CHATTERBOX
+    ) {
+      let childrens = await this.findDescendantsTree(user, node.id);
+      for await (let children of childrens) {
+        await this.removeTreeNode(user, children, node.id);
+      }
+    }
+    this.removeAllAboutNode(node, parentNodeId);
+  }
+
+  private async removeAllAboutNode(node: ContentNode, parentNodeId: string) {
+    console.log(node.type, node.id);
+    let source = node.data;
+
+    try {
+      if (node.type == EnumContentNodeType.FILE) {
+        var fs = require('fs');
+        var filePath = __dirname + '/../../uploads/' + node.data;
+        fs.unlinkSync(filePath);
+        source = './uploads/' + node.data;
+      }
+    } catch (e) {
+      //throw e;
+    }
+
+    if (
+      node.type != EnumContentNodeType.CHATTERBOX &&
+      node.type != EnumContentNodeType.FOLDER
+    ) {
+      console.log('delete pinecode', parentNodeId, source);
+      let chattreboxNode = await this.findChattrebocOfNodeTree(node.id);
+      await this.pinecodeApiService.deleteBySource(chattreboxNode.id, source);
+    }
+    console.log('delete node ', node.id);
+    return await this.contentNodeRepository.delete(node.id);
   }
 }

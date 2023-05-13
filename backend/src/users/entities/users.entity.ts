@@ -1,3 +1,4 @@
+import { Comment } from 'src/comments/entities/comment.entity';
 import { ContentNode } from 'src/content-node/entities/content-node.entity';
 import { Invitation } from 'src/invitations/entities/invitation.entity';
 import { Notification } from 'src/notifications/entities/notification.entity';
@@ -36,4 +37,7 @@ export class User {
 
   @OneToMany((type) => Notification, (Notification) => Notification.user)
   notifications: Notification[];
+
+  @OneToMany((type) => Comment, (comment) => comment.userCreator)
+  comments: Comment[];
 }

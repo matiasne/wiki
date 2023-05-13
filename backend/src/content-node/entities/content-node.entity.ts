@@ -1,7 +1,6 @@
 import { IsEnum } from 'class-validator';
 import { User } from 'src/users/entities/users.entity';
 import {
-  PrimaryGeneratedColumn,
   Column,
   ManyToOne,
   OneToMany,
@@ -42,10 +41,10 @@ export class ContentNode extends BaseEntity {
   @TreeChildren()
   childrens: ContentNode[];
 
-  @TreeParent({ onDelete: 'CASCADE' })
+  @TreeParent()
   parent: ContentNode;
 
-  @ManyToOne(() => User, (user) => user.createdNodes, {
+  @ManyToOne((type) => User, (user) => user.createdNodes, {
     onDelete: 'CASCADE',
   })
   userCreator: User;
