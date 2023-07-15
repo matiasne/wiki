@@ -12,10 +12,12 @@ import {
   DialogActions,
   Button,
   Box,
+  TextareaAutosize,
 } from "@mui/material";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useReducer, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import uploadFileService from "@/features/files/services/upload-file.service";
+import { useForm } from "react-hook-form";
 
 type UploadFileModalProps = {
   open: boolean;
@@ -32,7 +34,17 @@ export default function UploadFileModal({
   onAddFile,
   onAddDocument,
 }: UploadFileModalProps) {
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    getValues,
+    watch,
+    formState: { errors },
+  } = useForm();
+
   const [files, setFiles] = useState<File[] | null>(null);
+  const [isImage, setIsImage] = useState<boolean>(false);
 
   const mutationUploadFile = useMutation({
     mutationFn: async () => {
@@ -43,6 +55,25 @@ export default function UploadFileModal({
       return true;
     },
   });
+
+  const mutationTemporaryImageFile = useMutation({
+    mutationFn: async () => {
+      if (files) {
+        let resp = await uploadFileService.uploadTemp(files[0]);
+        setValue("imageDescription", resp.data.choices[0].text);
+      }
+      onAddFile();
+      return true;
+    },
+  });
+
+  const addFile = (files: any) => {
+    if (files[0].type.includes("image")) {
+      setIsImage(true);
+      mutationTemporaryImageFile.mutate();
+    }
+    setFiles(files);
+  };
 
   const reducer = (state: any, action: any) => {
     switch (action.type) {
@@ -81,15 +112,27 @@ export default function UploadFileModal({
             dispatch={dispatch}
             onFilesAdded={function (files: any): void {
               console.log(files);
-              setFiles(files);
+              addFile(files);
             }}
           />
         </Box>
+        {isImage ? (
+          <FormControl fullWidth size="small">
+            <TextareaAutosize
+              aria-label="empty textarea"
+              placeholder="Empty"
+              {...register("imageDescription")}
+              style={{ width: 500, height: 250, padding: "10px" }}
+            />
+          </FormControl>
+        ) : null}
       </DialogContent>
       <DialogActions>
         <Button
           onClick={() => {
             onClose();
+            setValue("imageDescription", "");
+            setIsImage(false);
           }}
         >
           Cancel
@@ -99,6 +142,8 @@ export default function UploadFileModal({
           onClick={() => {
             onClose();
             mutationUploadFile.mutate();
+            setValue("imageDescription", "");
+            setIsImage(false);
           }}
         >
           Save

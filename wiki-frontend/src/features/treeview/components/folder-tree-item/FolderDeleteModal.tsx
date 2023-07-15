@@ -32,10 +32,8 @@ export default function DeleteFolderModal({
         "& .MuiTextField-root": { m: 1 },
       }}
     >
-      <DialogTitle>Delete Folder</DialogTitle>
-      <DialogContent>
-        {"Are you sure to delete " + name + " folder?"}
-      </DialogContent>
+      <DialogTitle>Confirmation</DialogTitle>
+      <DialogContent>{"Are you sure to delete " + name + " ?"}</DialogContent>
       <DialogActions>
         <Button onClick={onCancel}>Cancel</Button>
         <Button onClick={onYes}>Yes</Button>

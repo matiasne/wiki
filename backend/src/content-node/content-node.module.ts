@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ContentNodeService } from './content-node.service';
 import { ContentNodeController } from './content-node.controller';
 import { ContentNode } from './entities/content-node.entity';
@@ -11,8 +11,8 @@ import { IngestDataService } from 'src/services/ingest-data.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([ContentNode]),
-    UsersModule,
-    UserNodeRoleModule,
+    forwardRef(() => UsersModule),
+    forwardRef(() => UserNodeRoleModule),
   ],
   controllers: [ContentNodeController],
   providers: [ContentNodeService, PinecodeApiService, IngestDataService],

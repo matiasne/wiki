@@ -29,9 +29,9 @@ function LoginForm() {
         username: email,
         password: password,
       });
-
-      if (response.data.idToken) {
-        localStorage.setItem("token", response.data.idToken.jwtToken);
+      if (response.data.data.idToken) {
+        localStorage.setItem("token", response.data.data.idToken.jwtToken);
+        localStorage.setItem("userName", response.data.user.name);
         updateAuth(true);
         setTimeout(() => {
           router.push("/home");

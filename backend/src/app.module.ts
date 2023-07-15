@@ -2,12 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
-import { DepartmentsModule } from './departments/departments.module';
-import { Department } from './departments/entities/department.entity';
 import { Invitation } from './invitations/entities/invitation.entity';
 import { Notification } from './notifications/entities/notification.entity';
-import { UserDepartmentRol } from './user-department-rol/entities/user-department-rol.entity';
-import { UserDepartmentRolModule } from './user-department-rol/user-department-rol.module';
 import { User } from './users/entities/users.entity';
 import { UsersModule } from './users/users.module';
 import { ContentNodeModule } from './content-node/content-node.module';
@@ -22,6 +18,8 @@ import { ChatterBox } from './chatterbox/entities/chatterbox.entity';
 import { ChatterboxModule } from './chatterbox/chatterbox.module';
 import { Comment } from './comments/entities/comment.entity';
 import { CommentsModule } from './comments/comments.module';
+import { Conversation } from './chatterbox/entities/conversation.entity';
+import { ConversationMessage } from './chatterbox/entities/conversation-message.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -37,8 +35,6 @@ import { CommentsModule } from './comments/comments.module';
       synchronize: true,
       entities: [
         User,
-        Department,
-        UserDepartmentRol,
         Invitation,
         Notification,
         ContentNode,
@@ -46,13 +42,13 @@ import { CommentsModule } from './comments/comments.module';
         DocumentText,
         ChatterBox,
         Comment,
+        Conversation,
+        ConversationMessage,
       ],
     }),
     MulterModule.register({ dest: './docs' }),
     AuthModule,
     UsersModule,
-    DepartmentsModule,
-    UserDepartmentRolModule,
     ContentNodeModule,
     UserNodeRoleModule,
     OpenAIModule,

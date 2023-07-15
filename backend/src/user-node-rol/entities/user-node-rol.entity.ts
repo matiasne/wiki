@@ -1,4 +1,3 @@
-import { Department } from 'src/departments/entities/department.entity';
 import { User } from 'src/users/entities/users.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { EnumNodeRoles } from '../dto/create-user-node-rol.dto';

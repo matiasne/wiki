@@ -1,15 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IAuthUser } from 'src/auth/interfaces/auth.interfaces';
-import { DepartmentsService } from 'src/departments/departments.service';
-import { Department } from 'src/departments/entities/department.entity';
 import {
   CreateNotificationDto,
   EnumNotificationStatus,
   EnumNotificationType,
 } from 'src/notifications/dto/create-notification.dto';
 import { NotificationsService } from 'src/notifications/notifications.service';
-import { UserDepartmentRolService } from 'src/user-department-rol/user-department-rol.service';
 import { User } from 'src/users/entities/users.entity';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
@@ -19,16 +16,19 @@ import {
 } from './dto/create-invitation.dto';
 import { UpdateInvitationDto } from './dto/update-invitation.dto';
 import { Invitation } from './entities/invitation.entity';
+import { ContentNodeService } from 'src/content-node/content-node.service';
+import { ContentNode } from 'src/content-node/entities/content-node.entity';
+import { UserNodeRoleService } from 'src/user-node-rol/user-node-rol.service';
 
 @Injectable()
 export class InvitationsService {
   constructor(
     @InjectRepository(Invitation)
     private readonly invitationsRepository: Repository<Invitation>,
-    private readonly userDepartmentRolService: UserDepartmentRolService,
     private readonly userService: UsersService,
-    private readonly departmentService: DepartmentsService,
+    private readonly contentNodeService: ContentNodeService,
     private readonly notificationService: NotificationsService,
+    private readonly userNodeRoleService: UserNodeRoleService,
   ) {}
 
   async create(user: IAuthUser, cInvitationDto: CreateInvitationDto) {
@@ -38,27 +38,19 @@ export class InvitationsService {
       cInvitationDto.userReceivingEmail,
     );
 
-    const department: Department = await this.departmentService.getById(
-      cInvitationDto.departmentId,
+    const node: ContentNode = await this.contentNodeService.findOne(
+      user,
+      cInvitationDto.nodeId,
     );
-
-    if (
-      !this.userDepartmentRolService.checkIfUserIsOwner(
-        user.id,
-        cInvitationDto.departmentId,
-      )
-    ) {
-      console.log('Is not the owner');
-    }
 
     const userSender: User = await this.userService.getById(user.id);
 
     let inv: Invitation = this.invitationsRepository.create();
     inv.userSender = userSender;
     inv.userReceivingEmail = cInvitationDto.userReceivingEmail;
-    inv.department = department;
+    inv.node = node;
     inv.status = InvitationStatus.PENDING;
-    inv.rol = cInvitationDto.rol;
+    inv.role = cInvitationDto.role;
 
     let invitation = await this.invitationsRepository.save(inv);
 
@@ -68,7 +60,7 @@ export class InvitationsService {
       console.log('Sending email to the user to login in the platform');
       let notification = new CreateNotificationDto();
 
-      notification.message = `You have been invited to the department ${department.name} by ${userReceiving.name} as ${cInvitationDto.rol}`;
+      notification.message = `You have been invited to the department ${node.name} by ${userReceiving.name} as ${cInvitationDto.role}`;
       notification.status = EnumNotificationStatus.CREATED;
       notification.type = EnumNotificationType.INVITATION;
       notification.typeRefUID = invitation.id;
@@ -116,13 +108,14 @@ export class InvitationsService {
 
     invitation.status = InvitationStatus.ACCEPTED;
 
-    const department = await this.departmentService.getById(
-      invitation.department.id,
+    const node = await this.contentNodeService.findOne(
+      user,
+      invitation.node.id,
     );
 
-    this.userDepartmentRolService.create({
-      rol: invitation.rol,
-      department: department,
+    this.userNodeRoleService.create({
+      role: invitation.role,
+      node: node,
       user: userL,
     });
 

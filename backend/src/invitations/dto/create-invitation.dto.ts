@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { Rol } from 'src/user-department-rol/dto/create-user-department-rol.dto';
+import { EnumNodeRoles } from 'src/user-node-rol/dto/create-user-node-rol.dto';
 
 export enum InvitationStatus {
   PENDING = 'PENDING',
@@ -9,8 +9,8 @@ export enum InvitationStatus {
 
 export class CreateInvitationDto {
   @IsNotEmpty()
-  @IsEnum(Rol)
-  rol: Rol;
+  @IsEnum(EnumNodeRoles)
+  role: EnumNodeRoles;
 
   status: string;
 
@@ -20,7 +20,7 @@ export class CreateInvitationDto {
 
   @IsNotEmpty()
   @IsString()
-  departmentId: string;
+  nodeId: string;
 
   @IsNotEmpty()
   @IsString()

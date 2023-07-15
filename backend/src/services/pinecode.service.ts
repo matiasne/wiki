@@ -38,25 +38,18 @@ export class PinecodeApiService {
     return this.testIndex;
   }
 
-  deleteBySource(nodeId: string, source: string) {
-    console.log('deleteBySource', nodeId, source);
+  async deleteBySource(nodeId: string, source: string): Promise<boolean> {
     const deleteRequest = {
       filter: { source: { $eq: source } },
       namespace: nodeId,
       include_metadata: true,
     };
-    let resp = this.testIndex._delete({ deleteRequest });
-  }
-
-  async search(nodeId: string, source: string) {
-    const searchRequest = {
-      query: {
-        source: { $eq: source },
-      },
-      namespace: nodeId,
-    };
-
-    //  const searchResponse = await this.testIndex.query({searchRequest});
-    //  return searchResponse;
+    try {
+      await this.testIndex._delete({ deleteRequest });
+      return true;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
   }
 }

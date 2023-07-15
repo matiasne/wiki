@@ -5,6 +5,8 @@ import { CreateCommentDto } from './dto/createComment.dto';
 import { Comment } from './entities/comment.entity';
 import { UsersService } from 'src/users/users.service';
 import { ChatterboxService } from 'src/chatterbox/chatterbox.service';
+import { IngestDataService } from 'src/services/ingest-data.service';
+import { IAuthUser } from 'src/auth/interfaces/auth.interfaces';
 
 @Injectable()
 export class CommentsService {
@@ -13,24 +15,10 @@ export class CommentsService {
     private readonly commentsRepository: Repository<Comment>,
     private readonly usersService: UsersService,
     private readonly chatterboxService: ChatterboxService,
+    private readonly ingestDataService: IngestDataService,
   ) {}
 
-  async create(user: any, createCommentDto: CreateCommentDto) {
-    const owner = await this.usersService.getById(user.id);
-    const chatterbox = await this.chatterboxService.findByNodeId(
-      createCommentDto.chatterboxId,
-    );
-
-    const newComment: Comment =
-      this.commentsRepository.create(createCommentDto);
-
-    newComment.userCreator = owner;
-    newComment.chatterbox = chatterbox;
-
-    let comment: Comment = await this.commentsRepository.save(newComment);
-
-    return comment;
-  }
+  async create(user: IAuthUser, createCommentDto: CreateCommentDto) {}
 
   async findAllByChatterbox(chatterboxId: string): Promise<Comment[]> {
     const parameters = {

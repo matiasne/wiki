@@ -59,12 +59,13 @@ export default function ChatterboxNodeFormModal({
 
   const onSubmit = async (data: any) => {
     if (node && node.id) {
-      console.log(data);
       await ChatterboxService.update(node.id, data);
     } else {
       await ChatterboxService.post(data);
     }
-    onSave();
+    setTimeout(() => {
+      onSave();
+    }, 600);
   };
 
   return (

@@ -27,7 +27,7 @@ export class ContentNodeService {
   ) {}
 
   async create(user: IAuthUser, createContentNodeDto: CreateContentNodeDto) {
-    console.log(user.id);
+    
     const creator = await this.usersService.getById(user.id);
 
     if (await this.checkIfNodeNameExists(user, createContentNodeDto)) {
@@ -54,13 +54,13 @@ export class ContentNodeService {
 
     let node: ContentNode = await this.contentNodeRepository.save(newNode);
     this.userNodeRolService.addUserAsCreator(creator, node);
-    console.log(node.id);
+    
+    
     if (
-      createContentNodeDto.type != EnumContentNodeType.CHATTERBOX &&
+      createContentNodeDto.type != EnumContentNodeType.CHATTERBOX && 
       createContentNodeDto.type != EnumContentNodeType.FOLDER
     ) {
-      let chattreboxNode = await this.findChattrebocOfNodeTree(node.id);
-      console.log(chattreboxNode.id);
+      let chattreboxNode = await this.findChattrebocOfNodeTree(node.id);      
       this.ingestService.processNodeData(user, node, chattreboxNode.id);
     }
 
@@ -217,7 +217,7 @@ export class ContentNodeService {
       };
     }
 
-    this.removeTreeNode(user, node, parentNode ? parentNode.id : '0');
+    return this.removeTreeNode(user, node, parentNode ? parentNode.id : '0');
   }
 
   async checkIfNodeNameExists(
@@ -262,11 +262,10 @@ export class ContentNodeService {
         await this.removeTreeNode(user, children, node.id);
       }
     }
-    this.removeAllAboutNode(node, parentNodeId);
+    return this.removeAllAboutNode(node, parentNodeId);
   }
 
   private async removeAllAboutNode(node: ContentNode, parentNodeId: string) {
-    console.log(node.type, node.id);
     let source = node.data;
 
     try {
@@ -284,11 +283,10 @@ export class ContentNodeService {
       node.type != EnumContentNodeType.CHATTERBOX &&
       node.type != EnumContentNodeType.FOLDER
     ) {
-      console.log('delete pinecode', parentNodeId, source);
       let chattreboxNode = await this.findChattrebocOfNodeTree(node.id);
       await this.pinecodeApiService.deleteBySource(chattreboxNode.id, source);
     }
-    console.log('delete node ', node.id);
+
     return await this.contentNodeRepository.delete(node.id);
   }
 }

@@ -65,14 +65,10 @@ export default function DataNodeTreeItem(props: DataNodeTreeItemProps) {
   return (
     <>
       <StyledTreeItem
-        parentrefetch={() => {
-          parentRefetch();
-        }}
         nodeId={node.id || ""}
         labelText={node.name}
         emojiUnified={node.emojiUnified ? node.emojiUnified : ""}
         clickHandler={toggleOpen}
-        editing={editingName ? true : false}
         onEmojiClick={(e: any) => {
           openLink();
         }}

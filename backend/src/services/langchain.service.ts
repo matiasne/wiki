@@ -1,47 +1,51 @@
-import { OpenAIChat } from 'langchain/llms';
-import { LLMChain, ChatVectorDBQAChain, loadQAChain } from 'langchain/chains';
-import { PineconeStore } from 'langchain/vectorstores';
+import { ChatOpenAI } from 'langchain/chat_models/openai';
+import {
+  ConversationalRetrievalQAChain,
+  LLMChain,
+  loadQAChain,
+} from 'langchain/chains';
+import { PineconeStore } from 'langchain/vectorstores/pinecone';
 import { PromptTemplate } from 'langchain/prompts';
 import { CallbackManager } from 'langchain/callbacks';
 import { Global, Injectable } from '@nestjs/common';
 import { PinecodeApiService } from './pinecode.service';
-import { OpenAIEmbeddings } from 'langchain/embeddings';
+import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { ChatDto } from 'src/chatterbox/dto/chat.dto';
-import { LLMResult } from 'langchain/dist/schema';
+import { ChainValues, LLMResult } from 'langchain/dist/schema';
 
 @Global()
 @Injectable()
 export class LangChainService {
   constructor(private pinecodeApiService: PinecodeApiService) {}
 
-  async respondToQuestion(chatDto: ChatDto) {
+  async respondToQuestion(chatDto: ChatDto): Promise<ChainValues> {
     return new Promise(async (resolve, reject) => {
-      console.log('chatDto', chatDto);
-
       const question = chatDto.message.trim().replace(/\n./g, ' ');
 
       const index = await this.pinecodeApiService.getIndex();
 
-      const vectorstore = await PineconeStore.fromExistingIndex(
-        new OpenAIEmbeddings({}),
+      const vectorStore = await PineconeStore.fromExistingIndex(
+        new OpenAIEmbeddings(),
+        { pineconeIndex: index, namespace: chatDto.chatterboxId },
+      );
+
+      let history = []; // chatDto.history;
+
+      const chain = ConversationalRetrievalQAChain.fromLLM(
+        new ChatOpenAI({
+          modelName: 'gpt-4',
+          temperature: 0.9,
+          openAIApiKey: process.env.OPENAI_API_KEY,
+        }),
+        vectorStore.asRetriever(),
         {
-          pineconeIndex: index,
-          textKey: 'text',
-          namespace: chatDto.nodeId,
+          returnSourceDocuments: true,
         },
       );
 
-      let history = chatDto.history;
+      console.log(chain);
 
-      let chatVectorDBQAChain = new ChatVectorDBQAChain({
-        vectorstore,
-        combineDocumentsChain: this.docChain((token) => {}),
-        questionGeneratorChain: this.questionGenerator(),
-        returnSourceDocuments: true,
-        k: 2, //number of source documents to return
-      });
-
-      let response = await chatVectorDBQAChain.call({
+      let response = await chain.call({
         question,
         chat_history: history || [],
       });
@@ -49,10 +53,13 @@ export class LangChainService {
       resolve(response);
     });
   }
-
+  /*
   private questionGenerator() {
     return new LLMChain({
-      llm: new OpenAIChat({ temperature: 0 }),
+      llm: new ChatOpenAI({
+        temperature: 0.9,
+        openAIApiKey: process.env.OPENAI_API_KEY,
+      }),
       prompt: this.getCondensedPrompt(),
     });
   }
@@ -85,18 +92,18 @@ export class LangChainService {
     });
 
     let qaChain = loadQAChain(
-      new OpenAIChat({
+      new ChatOpenAI({
         temperature: 0,
-        modelName: 'gpt-3.5-turbo', //change this to older versions (e.g. gpt-3.5-turbo) if you don't have access to gpt-4
         streaming: true,
         callbackManager: callbackManager,
+        openAIApiKey: process.env.OPENAI_API_KEY,
       }),
       { prompt: this.getQAprompt() },
     );
 
     return qaChain;
-  }
-
+  }*/
+  /*
   private getCondensedPrompt() {
     return PromptTemplate.fromTemplate(`
     Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
@@ -109,14 +116,14 @@ Standalone question:`);
   private getQAprompt() {
     return PromptTemplate.fromTemplate(
       `You are an AI assistant providing helpful advice. You are given the following extracted parts of a long document and a question. Provide a conversational answer based on the context provided.
-  You should only provide hyperlinks that reference the context below. Do NOT make up hyperlinks.
-  If you can't find the answer in the context below, just say "Hmm, I'm not sure." Don't try to make up an answer.
-  If the question is not related to the context, politely respond that you are tuned to only answer questions that are related to the context.
+      If you can't find the answer in the context below just say "Hmm, I'm not sure." Don't try to make up an answer.
+      If the question is not related to the context, politely respond that you are tuned to only answer questions that are related to the context.
+      You should only provide hyperlinks that reference the context below. Do NOT make up hyperlinks.
   Question: {question}
   =========
   {context}
   =========
   Answer in Markdown:`,
     );
-  }
+  }*/
 }

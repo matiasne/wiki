@@ -7,7 +7,8 @@ export class ChatDto {
 
   @IsNotEmpty()
   @IsString()
-  nodeId: string;
+  chatterboxId: string;
 
-  history: string[];
+  @IsString()
+  conversationId?: string;
 }

@@ -39,7 +39,6 @@ export class UsersService {
     try {
       return await this.usersRepository.find({
         relations: [
-          'departmentsRoles.department',
           'nodesRoles.node',
           'invitationsSent',
           'invitationsReceived',
@@ -56,7 +55,6 @@ export class UsersService {
       let user = await this.usersRepository.findOne({
         where: { id: id },
         relations: [
-          'departmentsRoles.department',
           'nodesRoles.node',
           'invitationsSent',
           'invitationsReceived',

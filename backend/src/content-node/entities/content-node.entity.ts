@@ -12,6 +12,8 @@ import {
 import { EnumContentNodeType } from '../dto/create-content-node.dto';
 import { UserNodeRole } from 'src/user-node-rol/entities/user-node-rol.entity';
 import { BaseEntity } from 'src/shared/base.entity';
+import { Comment } from 'src/comments/entities/comment.entity';
+import { Invitation } from 'src/invitations/entities/invitation.entity';
 
 @Entity('content-node')
 @Tree('closure-table')
@@ -51,4 +53,10 @@ export class ContentNode extends BaseEntity {
 
   @OneToMany((type) => UserNodeRole, (userNodeRole) => userNodeRole.node)
   usersRoles: UserNodeRole[];
+
+  @OneToMany(() => Comment, (comment) => comment.contentNode)
+  comments: Comment[];
+
+  @OneToMany((type) => Invitation, (Invitation) => Invitation.node)
+  invitations: Invitation[];
 }

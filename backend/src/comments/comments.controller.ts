@@ -12,12 +12,11 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { AuthUser } from 'src/auth/auth.decorator';
 import { IAuthUser } from 'src/auth/interfaces/auth.interfaces';
-import { CreateDepartmentDto } from 'src/departments/dto/create-department.dto';
 import { HttpExceptionFilter } from 'src/shared/http-exceptions.filter';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/createComment.dto';
 
-@Controller('departments')
+@Controller('comments')
 @UseFilters(HttpExceptionFilter)
 @UseGuards(AuthGuard('jwt'))
 export class CommentsController {
@@ -42,10 +41,7 @@ export class CommentsController {
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateDepartmentDto: CreateDepartmentDto,
-  ) {
+  update(@Param('id') id: string, @Body() createCommentDto: CreateCommentDto) {
     // return this.commentsService.update(id, updateDepartmentDto);
   }
 

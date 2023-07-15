@@ -1,5 +1,3 @@
-import { Department } from 'src/departments/entities/department.entity';
-import { Rol } from 'src/user-department-rol/dto/create-user-department-rol.dto';
 import { User } from 'src/users/entities/users.entity';
 import {
   BaseEntity,
@@ -9,6 +7,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { InvitationStatus } from '../dto/create-invitation.dto';
+import { ContentNode } from 'src/content-node/entities/content-node.entity';
+import { EnumNodeRoles } from 'src/user-node-rol/dto/create-user-node-rol.dto';
 
 @Entity('invitation')
 export class Invitation extends BaseEntity {
@@ -16,7 +16,7 @@ export class Invitation extends BaseEntity {
   id: string;
 
   @Column({ default: '' })
-  rol: Rol;
+  role: EnumNodeRoles;
 
   @Column({ default: '' })
   status: InvitationStatus;
@@ -27,10 +27,10 @@ export class Invitation extends BaseEntity {
   @Column({ default: '' })
   userReceivingEmail: string;
 
-  @ManyToOne(() => Department, (department) => department.invitations, {
+  @ManyToOne(() => ContentNode, (node) => node.invitations, {
     onDelete: 'CASCADE',
   })
-  department: Department;
+  node: ContentNode;
 
   @ManyToOne(() => User, (user) => user.invitationsReceived, {
     onDelete: 'CASCADE',

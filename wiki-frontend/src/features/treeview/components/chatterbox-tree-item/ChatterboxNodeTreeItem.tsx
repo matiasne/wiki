@@ -92,14 +92,13 @@ export default function ChatterboxNodeTreeItem(
   return (
     <>
       <StyledTreeItem
-        parentrefetch={() => {
-          parentRefetch();
+        onClick={() => {
+          openChat();
         }}
         nodeId={node.id || ""}
         labelText={node.name}
         emojiUnified={node.emojiUnified ? node.emojiUnified : ""}
         clickHandler={toggleOpen}
-        editing={editingName}
         actionbuttons={[
           {
             labelIcon: ChatBubbleOutlineIcon,
@@ -107,14 +106,6 @@ export default function ChatterboxNodeTreeItem(
             onClick: (event) => {
               event.stopPropagation();
               openChat();
-            },
-          },
-          {
-            labelIcon: DeveloperBoardIcon,
-            labelText: "Process Data",
-            onClick: (event) => {
-              event.stopPropagation();
-              mutationProcessData.mutate();
             },
           },
           {
@@ -151,20 +142,22 @@ export default function ChatterboxNodeTreeItem(
             },
           },
         ]}
-        onEmojiClick={function (event: any): void {}}
+        onEmojiClick={function (event: any): void {
+          event.preventDefault();
+          openChat();
+        }}
       >
-        {!isLoadingchildsData &&
-        childsData.data &&
-        childsData.data.childrens ? (
-          childsData.data.childrens.map((nodeChild: any, i: any) => {
+        {!isLoadingchildsData && childsData.data && childsData.data ? (
+          childsData.data.map((nodeChild: any, i: any) => {
             nodeChild.parentId = node.id;
+            console.log(nodeChild.id);
             if (nodeChild.type === EnumNodeType.FOLDER) {
               return (
                 <FolderNodeTreeItem
                   parentRefetch={() => {
                     refetch();
                   }}
-                  key={i}
+                  key={nodeChild.id}
                   node={nodeChild}
                 />
               );
@@ -174,7 +167,7 @@ export default function ChatterboxNodeTreeItem(
                   parentRefetch={() => {
                     refetch();
                   }}
-                  key={i}
+                  key={nodeChild.id}
                   node={nodeChild}
                 />
               );
@@ -197,13 +190,12 @@ export default function ChatterboxNodeTreeItem(
       />
 
       <FolderNodeFormModal
-        key={1}
         open={openAddFolderContentNode}
         onClose={() => {
           setOpenAddFolderContentNode(false);
         }}
-        onSave={() => {
-          refetch();
+        onSave={async () => {
+          await refetch();
           parentRefetch();
           setOpenAddFolderContentNode(false);
         }}
@@ -211,13 +203,12 @@ export default function ChatterboxNodeTreeItem(
       />
 
       <ChatterboxNodeFormModal
-        key={1}
         open={openEditContentNode}
         onClose={() => {
           setOpenEditContentNode(false);
         }}
-        onSave={() => {
-          refetch();
+        onSave={async () => {
+          await refetch();
           parentRefetch();
           setOpenEditContentNode(false);
         }}

@@ -23,12 +23,12 @@ export default function RootLayout({
   const [queryClient] = useState(() => new QueryClient());
 
   return (
-    <html lang="en">
-      <body className={mulish.className}>
-        <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <html lang="en">
+        <body className={mulish.className}>
           <AuthProvider>{children}</AuthProvider>
-        </QueryClientProvider>
-      </body>
-    </html>
+        </body>
+      </html>
+    </QueryClientProvider>
   );
 }

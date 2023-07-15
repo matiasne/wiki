@@ -84,14 +84,10 @@ export default function FolderNodeTreeItem(props: FolderNodeTreeItemProps) {
   return (
     <>
       <StyledTreeItem
-        parentrefetch={() => {
-          parentRefetch();
-        }}
         nodeId={node.id || ""}
         labelText={node.name}
         emojiUnified={node.emojiUnified ? node.emojiUnified : ""}
         clickHandler={toggleOpen}
-        editing={editingName}
         actionbuttons={[
           {
             labelIcon: EditIcon,
@@ -136,10 +132,8 @@ export default function FolderNodeTreeItem(props: FolderNodeTreeItemProps) {
         ]}
         onEmojiClick={function (event: any): void {}}
       >
-        {!isLoadingchildsData &&
-        childsData.data &&
-        childsData.data.childrens ? (
-          childsData.data.childrens.map((nodeChild: any, i: any) => {
+        {!isLoadingchildsData && childsData.data && childsData.data ? (
+          childsData.data.map((nodeChild: any, i: any) => {
             nodeChild.parentId = node.id;
             if (nodeChild.type === EnumNodeType.FOLDER) {
               return (
@@ -196,8 +190,8 @@ export default function FolderNodeTreeItem(props: FolderNodeTreeItemProps) {
         onClose={() => {
           setOpenEditContentNode(false);
         }}
-        onSave={() => {
-          refetch();
+        onSave={async () => {
+          await refetch();
           parentRefetch();
           setOpenEditContentNode(false);
         }}

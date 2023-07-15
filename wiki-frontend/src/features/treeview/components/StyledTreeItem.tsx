@@ -33,10 +33,8 @@ type StyledTreeItemProps = TreeItemProps & {
   emojiUnified: any;
   labelInfo?: string;
   labelText: string;
-  editing: boolean;
   clickHandler: () => void;
   actionbuttons?: ActionButtonTreeItem[];
-  parentrefetch: () => void;
   onEmojiClick: (event: any) => void;
 };
 
@@ -86,10 +84,6 @@ export default function StyledTreeItem(props: StyledTreeItemProps) {
     setEditingLabel(props.labelText);
   }, [props.labelText]);
 
-  useEffect(() => {
-    setEditingName(props.editing);
-  }, [props.editing]);
-
   useOutsideAlerter(textInputRef);
 
   function useOutsideAlerter(ref: any) {
@@ -124,7 +118,7 @@ export default function StyledTreeItem(props: StyledTreeItemProps) {
       let resp = await nodeService.update(props.nodeId, {
         name: e.target.value,
       });
-      props.parentrefetch();
+
       console.log(resp);
     } else {
       setEditingLabel(e.target.value);
@@ -136,7 +130,8 @@ export default function StyledTreeItem(props: StyledTreeItemProps) {
     setAnchorEl(event.currentTarget);
   };
 
-  const closeOptions = () => {
+  const closeOptions = (e: any) => {
+    e.stopPropagation();
     setAnchorEl(null);
   };
 
@@ -166,33 +161,32 @@ export default function StyledTreeItem(props: StyledTreeItemProps) {
           onMouseLeave={onLeave}
           onClick={() => clickHandler()}
         >
-          <Button onClick={(e) => onEmojiClick(e)}>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEmojiClick(e);
+            }}
+          >
             <Emoji
               unified={props.emojiUnified ? props.emojiUnified : "1f4c1"}
             />
           </Button>
 
-          {editingName ? (
-            <>
-              <TextField
-                ref={textInputRef}
-                id="outlined-basic"
-                variant="outlined"
-                size="small"
-                value={editingLabel}
-                // onClick={(e?: any) => e.stopPropagation()}
-                onChange={(e) => setEditingLabel(e.target.value)}
-                onKeyDown={(e) => keyPress(e)}
-              />
-            </>
-          ) : (
-            <Typography
-              variant="body2"
-              sx={{ fontWeight: "inherit", flexGrow: 1 }}
-            >
-              {props.labelText}
-            </Typography>
-          )}
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: "inherit",
+              flexGrow: 1,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEmojiClick(e);
+            }}
+          >
+            {props.labelText}
+          </Typography>
 
           <>
             {hover && !editingName ? (
@@ -236,7 +230,7 @@ export default function StyledTreeItem(props: StyledTreeItemProps) {
                           labelText={actionButton.labelText}
                           onClick={(event?: any) => {
                             event.stopPropagation();
-                            closeOptions();
+                            closeOptions(event);
                             actionButton.onClick(event);
                           }}
                         />

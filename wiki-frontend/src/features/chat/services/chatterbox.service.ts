@@ -2,15 +2,29 @@ import BaseCRUD from "@/shared/services/baseCRUD.service";
 import httpClient from "@/shared/services/http-common";
 import { INewChatterboxDTO } from "../models/new-chatterbox.dto";
 
+export interface ISendMessageDTO {
+  message: string;
+  chatterboxId: string;
+  history: string[];
+  conversationId: string;
+}
+
 class ChatterboxService extends BaseCRUD {
   constructor() {
     super("/chatterbox");
   }
 
-  async sendMessage(nodeId: string, message: any) {
-    const data = {
+  async sendMessage(
+    chatterboxId: string,
+    message: any,
+    history: string[],
+    conversationId: string
+  ): Promise<any> {
+    const data: ISendMessageDTO = {
       message: message,
-      nodeId: nodeId,
+      chatterboxId: chatterboxId,
+      history: history,
+      conversationId: conversationId,
     };
 
     return await httpClient.post(this.urlBase + "/message", data);

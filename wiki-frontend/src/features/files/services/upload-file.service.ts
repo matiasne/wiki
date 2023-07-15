@@ -9,11 +9,21 @@ class FileUploadService extends BaseCRUD {
   async upload(parentId: string, file: any) {
     const formData = new FormData();
     formData.append("file", file);
-
     formData.append("parentId", parentId);
     formData.append("data", "");
 
     return await httpClient.post(this.urlBase, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  }
+
+  async uploadTemp(file: any) {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    return await httpClient.post(this.urlBase + "/temp", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

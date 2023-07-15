@@ -1,5 +1,13 @@
 import { IsEmail, IsNotEmpty } from 'class-validator';
 
+export class CognitoRegisterDto {
+  @IsNotEmpty()
+  password: string;
+
+  @IsNotEmpty()
+  email: string;
+}
+
 export class AuthRegisterDto {
   @IsEmail()
   email: string;
@@ -54,6 +62,6 @@ export class AuthConfirmCodeDto {
 }
 
 export class IAuthUser {
-  uasername: string;
+  username: string;
   id: string;
 }

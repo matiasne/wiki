@@ -21,6 +21,7 @@ import { ChatDto } from 'src/chatterbox/dto/chat.dto';
 import { UpdateContentNodeDto } from 'src/content-node/dto/update-content-node.dto';
 import { EnumContentNodeType } from 'src/content-node/dto/create-content-node.dto';
 import { OpenAIService } from 'src/openai/openai.service';
+import { ConversationsService } from './conversations.service';
 
 @Controller('chatterbox')
 @UseFilters(HttpExceptionFilter)
@@ -28,8 +29,7 @@ import { OpenAIService } from 'src/openai/openai.service';
 export class ChatterboxController {
   constructor(
     private readonly chatterboxService: ChatterboxService,
-    private readonly langChainService: LangChainService,
-    private readonly openaiService: OpenAIService,
+    private conversationsService: ConversationsService,
   ) {}
 
   @Post()
@@ -42,28 +42,23 @@ export class ChatterboxController {
 
   @Post('message')
   async processMsg(@AuthUser() user: IAuthUser, @Body() chatDto: ChatDto) {
-    let typeMessage = await this.openaiService.defineTypeOfTextReceived(
+    /*let typeMessage = await this.openaiService.defineTypeOfTextReceived(
       chatDto.message,
-    );
-
-    let response = {
-      data: null,
-      interpretation: typeMessage,
-    };
-    if (typeMessage.includes('question'))
-      response.data = await this.langChainService.respondToQuestion(chatDto);
-
-    return response;
+    );*/
+    return await this.chatterboxService.processMessage(user, chatDto);
   }
 
-  @Get('process/:id')
-  async processDoc(@Param('id') id: string, @AuthUser() user: IAuthUser) {
-    // return await this.ingestDataService.IngestChatterBoxNodeData(id, user);
+  @Post('conversations')
+  async findAllConversations(
+    @Param('id') id: string,
+    @AuthUser() user: IAuthUser,
+  ) {
+    return await this.conversationsService.findById(id);
   }
 
   @Get(':id')
   async findAll(@Param('id') id: string, @AuthUser() user: IAuthUser) {
-    return await this.chatterboxService.findByNodeId(id);
+    return await this.chatterboxService.findById(user, id);
   }
 
   @Patch(':id')

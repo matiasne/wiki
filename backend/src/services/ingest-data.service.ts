@@ -1,8 +1,8 @@
 import { Global, Injectable, Logger, UseGuards } from '@nestjs/common';
 
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { OpenAIEmbeddings } from 'langchain/embeddings';
-import { PineconeStore } from 'langchain/vectorstores';
+import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
+import { PineconeStore } from 'langchain/vectorstores/pinecone';
 import {
   CSVLoader,
   CheerioWebBaseLoader,
@@ -68,29 +68,43 @@ export class IngestDataService {
 
       if (loader) {
         const docs = await loader.load();
-        this.processDocs(docs, rootNodeId, node.id);
+        this.processDocs(docs, rootNodeId, node.id, user);
       }
     }
 
     if (node.type == EnumContentNodeType.URL) {
       const urlloader = new CheerioWebBaseLoader(node.data);
       const urldocs = await urlloader.load();
-      this.processDocs(urldocs, rootNodeId, node.id);
+      this.processDocs(urldocs, rootNodeId, node.id, user);
     }
 
     if (node.type == EnumContentNodeType.RICH_TEXT) {
-      this.processText(node.data, rootNodeId, node.id);
+      this.processText(node.data, rootNodeId, node.id, user);
     }
   }
 
-  async processDocs(docs: any, namespace: string, nodeId: string) {
+  async processDocs(
+    docs: any,
+    namespace: string,
+    nodeId: string,
+    user: IAuthUser,
+  ) {
     try {
+      console.log('docs', docs);
       const textSplitter = new RecursiveCharacterTextSplitter({
         chunkSize: 1000,
         chunkOverlap: 200,
       });
 
       const docsSplits = await textSplitter.splitDocuments(docs);
+      for await (let doc of docsSplits) {
+        doc.metadata['nodeId'] = nodeId;
+        doc.metadata['userId'] = user.id;
+        doc.metadata['userName'] = user.username;
+      }
+
+      console.log('docsSplits', docsSplits);
+
       //create and store the embeddings in the vectorStore
       const embeddings = new OpenAIEmbeddings();
       const index = await this.pinecodeApiService.setIndex(
@@ -101,6 +115,8 @@ export class IngestDataService {
         pineconeIndex: index,
         filter: {
           nodeId: nodeId,
+          userId: user.id,
+          userName: user.username,
         },
         namespace: namespace,
         textKey: 'text',
@@ -110,7 +126,12 @@ export class IngestDataService {
     }
   }
 
-  private async processText(data: string, namespace: string, nodeId: string) {
+  public async processText(
+    data: string,
+    namespace: string,
+    nodeId: string,
+    user: IAuthUser,
+  ) {
     const textSplitter = new RecursiveCharacterTextSplitter({
       chunkSize: 1000,
       chunkOverlap: 200,
@@ -128,6 +149,8 @@ export class IngestDataService {
       return {
         id: i,
         nodeId: nodeId,
+        userId: user.id,
+        userName: user.username,
       };
     });
 
@@ -135,6 +158,8 @@ export class IngestDataService {
       pineconeIndex: index,
       filter: {
         nodeId: nodeId,
+        creator: user.id,
+        creatorName: user.username,
       },
       namespace: namespace,
       textKey: 'text',

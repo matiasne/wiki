@@ -13,6 +13,7 @@ import {
   AuthForgotPasswordDto,
   AuthLogoutDto,
   AuthRegisterDto,
+  CognitoRegisterDto,
 } from './interfaces/auth.interfaces';
 
 @Injectable()
@@ -28,7 +29,7 @@ export class AuthService {
     });
   }
 
-  async register(authRegisterRequest: AuthRegisterDto) {
+  async register(authRegisterRequest: CognitoRegisterDto) {
     const { email, password } = authRegisterRequest;
     return new Promise((resolve, reject) => {
       return this.userPool.signUp(

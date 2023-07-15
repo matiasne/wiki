@@ -14,7 +14,6 @@ import {
   emojiUnifiedMap,
 } from 'src/shared/enum.langchain-files-types';
 import { extname } from 'path';
-import { PinecodeApiService } from 'src/services/pinecode.service';
 import { IngestDataService } from 'src/services/ingest-data.service';
 import { CustomException } from 'src/shared/custom-http-exception';
 
@@ -27,6 +26,7 @@ export class DocumentsService {
     private ingestService: IngestDataService,
   ) {}
   async upload(uploadFileDto: UploadFileDto, file: any, user: IAuthUser) {
+    
     try {
       let ext: any = extname(file.originalname);
       let isAvailable = Object.values(EnumLangchainFilesType).includes(ext);

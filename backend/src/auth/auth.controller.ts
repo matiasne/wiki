@@ -21,6 +21,7 @@ import {
   AuthLogoutDto,
   AuthRegisterDto,
   AuthVarifyEmailDto,
+  CognitoRegisterDto,
 } from './interfaces/auth.interfaces';
 
 @Controller('auth')
@@ -40,7 +41,12 @@ export class AuthController {
     newUser.name = authRegisterDto.username;
 
     try {
-      let resp = await this.authService.register(authRegisterDto);
+      let cognitoRegister: CognitoRegisterDto = {
+        email: authRegisterDto.email,
+        password: authRegisterDto.password,
+      };
+
+      let resp = await this.authService.register(cognitoRegister);
 
       try {
         await this.userService.create(newUser);
@@ -68,7 +74,9 @@ export class AuthController {
   @Post('login')
   async login(@Body() authenticateRequest: AuthCredentialsDto) {
     try {
-      let resp = await this.authService.authenticateUser(authenticateRequest);
+      let cognito = await this.authService.authenticateUser(
+        authenticateRequest,
+      );
 
       let user = await this.userService.getByEmail(
         authenticateRequest.username,
@@ -79,7 +87,11 @@ export class AuthController {
         newUser.name = authenticateRequest.username;
         await this.userService.create(newUser);
       }
-      return resp;
+      let reponse = {
+        data: cognito,
+        user: user,
+      };
+      return reponse;
     } catch (e) {
       throw new BadRequestException(e.message);
     }
