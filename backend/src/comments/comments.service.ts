@@ -3,9 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateCommentDto } from './dto/createComment.dto';
 import { Comment } from './entities/comment.entity';
-import { UsersService } from 'src/users/users.service';
-import { ChatterboxService } from 'src/chatterbox/chatterbox.service';
-import { IngestDataService } from 'src/services/ingest-data.service';
 import { IAuthUser } from 'src/auth/interfaces/auth.interfaces';
 
 @Injectable()
@@ -13,9 +10,6 @@ export class CommentsService {
   constructor(
     @InjectRepository(Comment)
     private readonly commentsRepository: Repository<Comment>,
-    private readonly usersService: UsersService,
-    private readonly chatterboxService: ChatterboxService,
-    private readonly ingestDataService: IngestDataService,
   ) {}
 
   async create(user: IAuthUser, createCommentDto: CreateCommentDto) {}

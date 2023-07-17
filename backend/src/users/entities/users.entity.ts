@@ -1,10 +1,10 @@
 import { Comment } from 'src/comments/entities/comment.entity';
 import { ContentNode } from 'src/content-node/entities/content-node.entity';
-import { Conversation } from 'src/chatterbox/entities/conversation.entity';
 import { Invitation } from 'src/invitations/entities/invitation.entity';
 import { Notification } from 'src/notifications/entities/notification.entity';
 import { UserNodeRole } from 'src/user-node-rol/entities/user-node-rol.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { ConversationMessage } from 'src/chatterbox/entities/conversation-message.entity';
 
 @Entity('user')
 export class User {
@@ -35,6 +35,6 @@ export class User {
   @OneToMany((type) => Comment, (comment) => comment.userCreator)
   comments: Comment[];
 
-  @OneToMany((type) => Conversation, (comment) => comment.user)
-  conversations: Conversation[];
+  @OneToMany((type) => ConversationMessage, (message) => message.user)
+  messages: ConversationMessage[];
 }

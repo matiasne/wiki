@@ -18,7 +18,6 @@ import { ChatterBox } from './chatterbox/entities/chatterbox.entity';
 import { ChatterboxModule } from './chatterbox/chatterbox.module';
 import { Comment } from './comments/entities/comment.entity';
 import { CommentsModule } from './comments/comments.module';
-import { Conversation } from './chatterbox/entities/conversation.entity';
 import { ConversationMessage } from './chatterbox/entities/conversation-message.entity';
 @Module({
   imports: [
@@ -42,7 +41,6 @@ import { ConversationMessage } from './chatterbox/entities/conversation-message.
         DocumentText,
         ChatterBox,
         Comment,
-        Conversation,
         ConversationMessage,
       ],
     }),

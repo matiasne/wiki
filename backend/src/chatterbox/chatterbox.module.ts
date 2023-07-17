@@ -7,18 +7,17 @@ import { ContentNodeModule } from 'src/content-node/content-node.module';
 import { LangChainService } from 'src/services/langchain.service';
 import { OpenAIModule } from 'src/openai/openai.module';
 import { PinecodeApiService } from 'src/services/pinecode.service';
-import { IngestDataService } from 'src/services/ingest-data.service';
 import { OpenAIService } from 'src/openai/openai.service';
-import { ConversationsService } from './conversations.service';
-import { Conversation } from 'src/chatterbox/entities/conversation.entity';
 import { ConversationMessage } from './entities/conversation-message.entity';
 import { UsersModule } from 'src/users/users.module';
 import { ConversationsMessagesService } from './conversations-messages.service';
+import { LangChainConversationRetrievalQAService } from 'src/services/LangChain/methods/langchain-conversation-retrielval-qa.service';
+import { RelevantsDocumentsService } from 'src/services/LangChain/relevants-documents.service';
+import { LangChainDocumentsQAService } from 'src/services/LangChain/methods/langchain-documentqa.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([ChatterBox]),
-    TypeOrmModule.forFeature([Conversation]),
     TypeOrmModule.forFeature([ConversationMessage]),
     ContentNodeModule,
     OpenAIModule,
@@ -27,13 +26,14 @@ import { ConversationsMessagesService } from './conversations-messages.service';
   controllers: [ChatterboxController],
   providers: [
     ChatterboxService,
-    ConversationsService,
     ConversationsMessagesService,
     LangChainService,
+    LangChainConversationRetrievalQAService,
+    RelevantsDocumentsService,
+    LangChainDocumentsQAService,
     PinecodeApiService,
     OpenAIService,
-    IngestDataService,
   ],
-  exports: [ChatterboxService, ConversationsService],
+  exports: [ChatterboxService],
 })
 export class ChatterboxModule {}

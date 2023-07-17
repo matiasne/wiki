@@ -14,6 +14,7 @@ import { UserNodeRole } from 'src/user-node-rol/entities/user-node-rol.entity';
 import { BaseEntity } from 'src/shared/base.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Invitation } from 'src/invitations/entities/invitation.entity';
+import { ConversationMessage } from 'src/chatterbox/entities/conversation-message.entity';
 
 @Entity('content-node')
 @Tree('closure-table')
@@ -59,4 +60,7 @@ export class ContentNode extends BaseEntity {
 
   @OneToMany((type) => Invitation, (Invitation) => Invitation.node)
   invitations: Invitation[];
+
+  @OneToMany((type) => ConversationMessage, (conversation) => conversation.node)
+  messages: ConversationMessage[];
 }

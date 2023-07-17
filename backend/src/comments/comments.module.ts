@@ -5,13 +5,11 @@ import { Comment } from './entities/comment.entity';
 import { CommentsController } from './comments.controller';
 import { CommentsService } from './comments.service';
 import { ChatterboxModule } from 'src/chatterbox/chatterbox.module';
-import { IngestDataService } from 'src/services/ingest-data.service';
-import { PinecodeApiService } from 'src/services/pinecode.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Comment]), UsersModule, ChatterboxModule],
   controllers: [CommentsController],
-  providers: [CommentsService, IngestDataService, PinecodeApiService],
+  providers: [CommentsService],
   exports: [CommentsService],
 })
 export class CommentsModule {}

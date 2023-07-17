@@ -1,6 +1,8 @@
 import { BaseEntity } from 'src/shared/base.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
-import { Conversation } from 'src/chatterbox/entities/conversation.entity';
+import { User } from 'src/users/entities/users.entity';
+import { ChatterBox } from './chatterbox.entity';
+import { ContentNode } from 'src/content-node/entities/content-node.entity';
 
 @Entity('conversation-message')
 export class ConversationMessage extends BaseEntity {
@@ -10,6 +12,13 @@ export class ConversationMessage extends BaseEntity {
   @Column({ default: false })
   userMessage: boolean;
 
-  @ManyToOne((type) => Conversation, (conversation) => conversation.messages)
-  conversation: Conversation;
+  @ManyToOne(() => User, (user) => user.messages, {
+    onDelete: 'CASCADE',
+  })
+  user: User;
+
+  @ManyToOne(() => ContentNode, (node) => node.messages, {
+    onDelete: 'CASCADE',
+  })
+  node: ContentNode;
 }

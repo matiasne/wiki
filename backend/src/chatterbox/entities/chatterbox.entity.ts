@@ -1,6 +1,6 @@
-import { Conversation } from 'src/chatterbox/entities/conversation.entity';
 import { BaseEntity } from 'src/shared/base.entity';
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { ConversationMessage } from './conversation-message.entity';
 
 @Entity('chatterbox')
 export class ChatterBox extends BaseEntity {
@@ -18,7 +18,4 @@ export class ChatterBox extends BaseEntity {
 
   @Column({ default: '' })
   lastProcessDate: string;
-
-  @OneToMany((type) => Conversation, (comment) => comment.user)
-  conversations: Conversation[];
 }

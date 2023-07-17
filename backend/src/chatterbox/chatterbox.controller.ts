@@ -13,15 +13,12 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthUser } from 'src/auth/auth.decorator';
 import { IAuthUser } from 'src/auth/interfaces/auth.interfaces';
 import { HttpExceptionFilter } from 'src/shared/http-exceptions.filter';
-import { UpdateChatterboxDto } from './dto/update-chatterbox.dto';
 import { CreateChatterboxDto } from './dto/create-chatterbox.dto';
 import { ChatterboxService } from './chatterbox.service';
-import { LangChainService } from 'src/services/langchain.service';
 import { ChatDto } from 'src/chatterbox/dto/chat.dto';
 import { UpdateContentNodeDto } from 'src/content-node/dto/update-content-node.dto';
 import { EnumContentNodeType } from 'src/content-node/dto/create-content-node.dto';
-import { OpenAIService } from 'src/openai/openai.service';
-import { ConversationsService } from './conversations.service';
+import { ConversationsMessagesService } from './conversations-messages.service';
 
 @Controller('chatterbox')
 @UseFilters(HttpExceptionFilter)
@@ -29,7 +26,7 @@ import { ConversationsService } from './conversations.service';
 export class ChatterboxController {
   constructor(
     private readonly chatterboxService: ChatterboxService,
-    private conversationsService: ConversationsService,
+    private conversationsMessagesService: ConversationsMessagesService,
   ) {}
 
   @Post()
@@ -42,18 +39,16 @@ export class ChatterboxController {
 
   @Post('message')
   async processMsg(@AuthUser() user: IAuthUser, @Body() chatDto: ChatDto) {
-    /*let typeMessage = await this.openaiService.defineTypeOfTextReceived(
-      chatDto.message,
-    );*/
     return await this.chatterboxService.processMessage(user, chatDto);
   }
 
-  @Post('conversations')
-  async findAllConversations(
-    @Param('id') id: string,
-    @AuthUser() user: IAuthUser,
-  ) {
-    return await this.conversationsService.findById(id);
+  @Post('conversation')
+  async findAllConversations(@Body() data: any, @AuthUser() user: IAuthUser) {
+    return await this.conversationsMessagesService.getMessages(
+      user,
+      data.chatterboxId,
+      1,
+    );
   }
 
   @Get(':id')

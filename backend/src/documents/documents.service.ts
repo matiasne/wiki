@@ -14,7 +14,6 @@ import {
   emojiUnifiedMap,
 } from 'src/shared/enum.langchain-files-types';
 import { extname } from 'path';
-import { IngestDataService } from 'src/services/ingest-data.service';
 import { CustomException } from 'src/shared/custom-http-exception';
 
 @Injectable()
@@ -23,10 +22,8 @@ export class DocumentsService {
     @InjectRepository(DocumentText)
     private readonly documentUserCursorsRepository: Repository<DocumentText>,
     private contentNodeService: ContentNodeService,
-    private ingestService: IngestDataService,
   ) {}
   async upload(uploadFileDto: UploadFileDto, file: any, user: IAuthUser) {
-    
     try {
       let ext: any = extname(file.originalname);
       let isAvailable = Object.values(EnumLangchainFilesType).includes(ext);

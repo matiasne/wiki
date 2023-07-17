@@ -12,7 +12,6 @@ import {
 import { IAuthUser } from 'src/auth/interfaces/auth.interfaces';
 import { UpdateContentNodeDto } from 'src/content-node/dto/update-content-node.dto';
 import { ChatDto } from './dto/chat.dto';
-import { ConversationsService } from 'src/chatterbox/conversations.service';
 import { UsersService } from 'src/users/users.service';
 import { ConversationMessage } from './entities/conversation-message.entity';
 import { ConversationsMessagesService } from './conversations-messages.service';
@@ -25,7 +24,6 @@ export class ChatterboxService {
     private readonly chatterboxRepository: Repository<ChatterBox>,
     private contentNodeService: ContentNodeService,
     private usersService: UsersService,
-    private conversationsService: ConversationsService,
     private conversationMessageService: ConversationsMessagesService,
     private langChainService: LangChainService,
   ) {}
@@ -88,19 +86,17 @@ export class ChatterboxService {
   }
 
   async processMessage(user: IAuthUser, chatDto: ChatDto) {
-    let conversation = null;
-    if (chatDto.conversationId) {
-      conversation = await this.conversationsService.findById(
-        chatDto.conversationId,
-      );
-    } else {
-      const chatterbox = await this.findById(user, chatDto.chatterboxId);
-      conversation = await this.conversationsService.create(user, chatterbox);
-    }
+    const owner = await this.usersService.getById(user.id);
+
+    const node = await this.contentNodeService.findOne(
+      user,
+      chatDto.nodeId ? chatDto.nodeId : chatDto.chatterboxId,
+    );
 
     let newUserMessage: ConversationMessage = new ConversationMessage();
 
-    newUserMessage.conversation = conversation;
+    newUserMessage.user = owner;
+    newUserMessage.node = node;
     newUserMessage.userMessage = true;
     newUserMessage.data = chatDto.message;
 
@@ -110,17 +106,15 @@ export class ChatterboxService {
 
     let response = await this.langChainService.respondToQuestion(chatDto);
 
-    console.log('response', response);
-
-    newBackMessage.conversation = conversation;
+    newBackMessage.user = owner;
+    newBackMessage.node = node;
     newBackMessage.userMessage = false;
     newBackMessage.data = response.text;
 
     this.conversationMessageService.create(newBackMessage);
 
     return {
-      conversationId: conversation.id,
-      chatterboxId: chatDto.chatterboxId,
+      chatterboxId: chatDto.nodeId,
       text: response.text,
       sourceDocuments: response.sourceDocuments,
     };

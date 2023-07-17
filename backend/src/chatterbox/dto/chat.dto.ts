@@ -10,5 +10,5 @@ export class ChatDto {
   chatterboxId: string;
 
   @IsString()
-  conversationId?: string;
+  nodeId: string;
 }

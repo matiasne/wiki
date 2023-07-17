@@ -89,8 +89,8 @@ export class IngestDataService {
     nodeId: string,
     user: IAuthUser,
   ) {
+    console.log('processDocs', nodeId);
     try {
-      console.log('docs', docs);
       const textSplitter = new RecursiveCharacterTextSplitter({
         chunkSize: 1000,
         chunkOverlap: 200,
@@ -102,8 +102,6 @@ export class IngestDataService {
         doc.metadata['userId'] = user.id;
         doc.metadata['userName'] = user.username;
       }
-
-      console.log('docsSplits', docsSplits);
 
       //create and store the embeddings in the vectorStore
       const embeddings = new OpenAIEmbeddings();

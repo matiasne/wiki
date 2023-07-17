@@ -2,26 +2,36 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConversationMessage } from './entities/conversation-message.entity';
+import { IAuthUser } from 'src/auth/interfaces/auth.interfaces';
 
 @Injectable()
 export class ConversationsMessagesService {
   constructor(
     @InjectRepository(ConversationMessage)
-    private readonly conversationRepository: Repository<ConversationMessage>,
+    private readonly conversationMessageRepository: Repository<ConversationMessage>,
   ) {}
 
   create(conversationMessage: ConversationMessage) {
     // let cm = this.conversationRepository.create(conversationMessage);
-    this.conversationRepository.save(conversationMessage);
+    this.conversationMessageRepository.save(conversationMessage);
   }
 
-  getMessagesByConversationId(conversationId: string, page: number) {
-    return this.conversationRepository.find({
-      where: {
-        id: conversationId,
-      },
-      skip: (page - 1) * 10,
-      take: 10,
-    });
+  async getMessages(user: IAuthUser, nodeId: string, page: number) {
+    const parameters = {
+      userId: user.id,
+      nodeId: nodeId,
+      page: page,
+    };
+
+    const data = await this.conversationMessageRepository
+      .createQueryBuilder('conversation-message')
+      .leftJoinAndSelect('conversation-message.user', 'user')
+      .leftJoinAndSelect('conversation-message.node', 'content-node')
+      .where('user.id = :userId')
+      .andWhere('chatterbox.id = :nodeId')
+      .setParameters(parameters)
+      .getMany();
+
+    return data;
   }
 }

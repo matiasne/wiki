@@ -12,16 +12,13 @@ export class OpenAIController {
   constructor(private readonly openaiApiService: OpenAIService) {}
 
   @Post('process')
-  async findAll(@AuthUser() user: IAuthUser) {
-    // return this.ingestDataService.IngestAllUserData(user);
-  }
+  async findAll(@AuthUser() user: IAuthUser) {}
 
   @Post('image')
   async image(
     @AuthUser() user: IAuthUser,
     @Body() imageDescriptor: ImageDescriptorDto,
   ) {
-    // return this.ingestDataService.IngestAllUserData(user);
     return this.openaiApiService.createCompletion(
       'de que se trata esta imagen. ten en cuenta que está relacionada al siguiente contexto: Elementos de un Diagrama de flujo para software ' +
         imageDescriptor.url,
