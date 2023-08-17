@@ -17,6 +17,7 @@ import { IAuthUser } from 'src/auth/interfaces/auth.interfaces';
 import { EnumContentNodeType } from 'src/content-node/dto/create-content-node.dto';
 import { EnumLangchainFilesType } from 'src/shared/enum.langchain-files-types';
 import { ContentNode } from 'src/content-node/entities/content-node.entity';
+import { PythonScriptService } from './pythonScripts/pythonScripts.service';
 
 @Global()
 @Injectable()
@@ -25,7 +26,10 @@ export class IngestDataService {
 
   private basePath = './uploads/';
 
-  constructor(private pinecodeApiService: PinecodeApiService) {}
+  constructor(
+    private pinecodeApiService: PinecodeApiService,
+    private pythonScriptService: PythonScriptService,
+  ) {}
 
   async processNodeData(
     user: IAuthUser,
@@ -36,6 +40,24 @@ export class IngestDataService {
       let loader: any;
 
       if (node.extension == EnumLangchainFilesType.pdf) {
+        //python!
+
+        this.pythonScriptService.runTest();
+
+        //acá correr el script que detecta tablas y extraer cada una
+        //procesar el csv con el CSVLoader
+        //este csv en pinecone y en node debe ser hijo de este nodo
+
+        //acé extraer las fórmulas matemáticas y hacerlas hijas de este nodo
+
+        //aca debe correr el pdf to html.
+
+        //después de sacar los chunck de texto, se debe hacer obtener los títulos
+
+        //poner títulos a la tabla?
+
+        // poner titulos a la fórmula?
+
         loader = new CustomPDFLoader(this.basePath + node.data);
       }
 
@@ -86,10 +108,11 @@ export class IngestDataService {
   async processDocs(
     docs: any,
     namespace: string,
-    nodeId: string,
+    chatterBoxId: string,
     user: IAuthUser,
   ) {
-    console.log('processDocs', nodeId);
+    // let chatterbox = this.chatterBoxService.findById(chatterBoxId);
+
     try {
       const textSplitter = new RecursiveCharacterTextSplitter({
         chunkSize: 1000,
@@ -98,7 +121,7 @@ export class IngestDataService {
 
       const docsSplits = await textSplitter.splitDocuments(docs);
       for await (let doc of docsSplits) {
-        doc.metadata['nodeId'] = nodeId;
+        doc.metadata['nodeId'] = chatterBoxId;
         doc.metadata['userId'] = user.id;
         doc.metadata['userName'] = user.username;
       }
@@ -112,7 +135,7 @@ export class IngestDataService {
       await PineconeStore.fromDocuments(docsSplits, embeddings, {
         pineconeIndex: index,
         filter: {
-          nodeId: nodeId,
+          nodeId: chatterBoxId,
           userId: user.id,
           userName: user.username,
         },

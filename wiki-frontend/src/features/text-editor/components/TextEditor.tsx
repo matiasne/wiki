@@ -63,9 +63,7 @@ export default function TextEditor({ id, username }: TextEditorProps) {
   useEffect(() => {
     if (socket == null || quill == null) return;
 
-    socket.on("conectado", () => {
-      console.log("conectado");
-    });
+    socket.on("conectado", () => {});
 
     socket.on("connect", () => {
       socket.on("load-document", (document) => {
@@ -164,7 +162,6 @@ export default function TextEditor({ id, username }: TextEditorProps) {
     if (cursor) {
       cursorsModule?.moveCursor(data.userName, data.range);
     } else {
-      console.log("new cursor", cursors);
       cursorsModule?.createCursor(
         data.userName,
         data.userName,
@@ -172,7 +169,7 @@ export default function TextEditor({ id, username }: TextEditorProps) {
       );
       cursorsModule?.moveCursor(data.userName, data.range);
       cursors.push(data);
-      console.log("new cursor", cursors);
+
       setCursors(cursors);
     }
   };

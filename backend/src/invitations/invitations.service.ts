@@ -32,8 +32,6 @@ export class InvitationsService {
   ) {}
 
   async create(user: IAuthUser, cInvitationDto: CreateInvitationDto) {
-    console.log(user);
-
     let userReceiving = await this.userService.getByEmail(
       cInvitationDto.userReceivingEmail,
     );
@@ -55,9 +53,7 @@ export class InvitationsService {
     let invitation = await this.invitationsRepository.save(inv);
 
     if (!userReceiving) {
-      console.log('Sending email to the user to register in the platform');
     } else {
-      console.log('Sending email to the user to login in the platform');
       let notification = new CreateNotificationDto();
 
       notification.message = `You have been invited to the department ${node.name} by ${userReceiving.name} as ${cInvitationDto.role}`;
@@ -86,7 +82,6 @@ export class InvitationsService {
   }
 
   async accept(id: string, user: IAuthUser) {
-    console.log(id);
     const userL: User = await this.userService.getById(user.id);
 
     this.notificationService.readed(EnumNotificationType.INVITATION, id);
@@ -95,8 +90,6 @@ export class InvitationsService {
       where: { id: id },
       relations: ['department'],
     });
-
-    console.log(invitation);
 
     if (!invitation) {
       return 'error';

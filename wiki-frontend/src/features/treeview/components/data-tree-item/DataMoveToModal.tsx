@@ -70,7 +70,6 @@ export default function DataMoveToFolderModal({
               getOptionLabel={(option: any) => option.name}
               sx={{ width: 300 }}
               onChange={(event: any, newValue: any | null) => {
-                console.log(newValue.id);
                 setSelectedFolder(newValue.id);
               }}
               renderInput={(params) => <TextField {...params} label="Folder" />}

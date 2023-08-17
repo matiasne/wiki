@@ -1,0 +1,9 @@
+,Unnamed: 0,EMPLOYEE,SPOUSE,CHILD
+0,Benefit amount,"Benefit amounts mayrange from $5,000 to$20,000 in $5,000increments.","Benefit amounts mayrange from $5,000 to$20,000 in $5,000increments.Amount cannot exceed100% of the employeeamount.","Benefit amounts mayrange from $2,500 to$10,000 in $2,500increments.Amount cannot exceed50% of the employeeamount."
+1,Guaranteed issue amount,"$20,000","$20,000","$10,000"
+2,Eligibility waiting period,First of the monthfollowing 30 days ofemployment,N/A,N/A
+3,Contributions,Contributory,Contributory,Contributory
+4,Member direct billing,Not included,Not included,Not included
+5,Employer contribution,0%,0%,0%
+6,Participation requirement,15%,N/A,N/A
+7,Policy issue requirement,5 enrolled employees,N/A,N/A

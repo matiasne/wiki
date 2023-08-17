@@ -24,8 +24,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
 
-    console.log(exception);
-
     switch (exception.status) {
       case 401:
         status = HttpStatus.UNAUTHORIZED;
@@ -37,7 +35,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
         message = response.message;
         break;
       case 500:
-        console.log(response.message);
         break;
       case HttpException:
         status = (exception as HttpException).getStatus();

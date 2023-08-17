@@ -1,16 +1,7 @@
-import { ChatOpenAI } from 'langchain/chat_models/openai';
-import {
-  ConversationalRetrievalQAChain,
-  LLMChain,
-  loadQAChain,
-  loadQARefineChain,
-} from 'langchain/chains';
 import { PineconeStore } from 'langchain/vectorstores/pinecone';
 import { Global, Injectable } from '@nestjs/common';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
-import { ChatDto } from 'src/chatterbox/dto/chat.dto';
-import { ChainValues, LLMResult } from 'langchain/dist/schema';
-import { PromptTemplate } from 'langchain';
+import { ChainValues } from 'langchain/dist/schema';
 import { PinecodeApiService } from '../pinecode.service';
 
 @Global()

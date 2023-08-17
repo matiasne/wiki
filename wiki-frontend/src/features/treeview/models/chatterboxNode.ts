@@ -9,6 +9,9 @@ export default class ChatterboxNode implements IContentNode {
   type = "";
   parentId = "0";
   description = "";
+  temperature = "0.9";
+  textChunkSize = "1000";
+  textOverlapSize = "200";
 
   constructor() {}
 

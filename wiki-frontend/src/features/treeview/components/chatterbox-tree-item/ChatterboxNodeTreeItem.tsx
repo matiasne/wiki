@@ -150,7 +150,7 @@ export default function ChatterboxNodeTreeItem(
         {!isLoadingchildsData && childsData.data && childsData.data ? (
           childsData.data.map((nodeChild: any, i: any) => {
             nodeChild.parentId = node.id;
-            console.log(nodeChild.id);
+
             if (nodeChild.type === EnumNodeType.FOLDER) {
               return (
                 <FolderNodeTreeItem
@@ -223,7 +223,6 @@ export default function ChatterboxNodeTreeItem(
           parentRefetch();
         }}
         onAddFile={() => {
-          console.log("onAddFile");
           refetch();
         }}
       />

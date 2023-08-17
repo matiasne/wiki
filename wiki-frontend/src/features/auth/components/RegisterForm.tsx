@@ -35,7 +35,7 @@ function SignUp() {
         password: password,
         inviteId: inviteId ? parseInt(inviteId) : null,
       });
-      console.log(resp.status == 200);
+
       setOpenToast(true);
       submitLogin(event);
       //navigate("/");

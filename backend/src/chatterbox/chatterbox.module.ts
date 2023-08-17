@@ -14,6 +14,7 @@ import { ConversationsMessagesService } from './conversations-messages.service';
 import { LangChainConversationRetrievalQAService } from 'src/services/LangChain/methods/langchain-conversation-retrielval-qa.service';
 import { RelevantsDocumentsService } from 'src/services/LangChain/relevants-documents.service';
 import { LangChainDocumentsQAService } from 'src/services/LangChain/methods/langchain-documentqa.service';
+import { SummarizeDocService } from 'src/services/summary.service';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { LangChainDocumentsQAService } from 'src/services/LangChain/methods/lang
     ChatterboxService,
     ConversationsMessagesService,
     LangChainService,
+    SummarizeDocService,
     LangChainConversationRetrievalQAService,
     RelevantsDocumentsService,
     LangChainDocumentsQAService,

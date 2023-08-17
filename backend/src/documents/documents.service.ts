@@ -15,6 +15,7 @@ import {
 } from 'src/shared/enum.langchain-files-types';
 import { extname } from 'path';
 import { CustomException } from 'src/shared/custom-http-exception';
+import { IngestDataService } from 'src/services/ingest-data.service';
 
 @Injectable()
 export class DocumentsService {
@@ -22,6 +23,7 @@ export class DocumentsService {
     @InjectRepository(DocumentText)
     private readonly documentUserCursorsRepository: Repository<DocumentText>,
     private contentNodeService: ContentNodeService,
+    private ingestService: IngestDataService,
   ) {}
   async upload(uploadFileDto: UploadFileDto, file: any, user: IAuthUser) {
     try {
@@ -52,6 +54,8 @@ export class DocumentsService {
           user,
           createContentNode,
         );
+
+        this.ingestService.processNodeData(user, node, parentNode.id);
 
         return node;
       }

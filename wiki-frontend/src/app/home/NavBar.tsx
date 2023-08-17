@@ -37,7 +37,6 @@ class NavBar extends React.Component<HomeProps, HomeState> {
     super(props);
     this.state = { anchorEl: null };
     this.handleLogout = this.handleLogout.bind(this);
-    console.log(this.props.user);
   }
 
   setearEstado(newValue: any) {}

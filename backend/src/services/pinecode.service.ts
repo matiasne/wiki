@@ -26,7 +26,6 @@ export class PinecodeApiService {
 
     const indexesList = await this.pinecone.listIndexes();
     this.testIndex = this.pinecone.Index(indexesList[0]);
-    console.log('indexesList', indexesList);
   }
 
   async setIndex(indexName: string): Promise<any> {
@@ -48,7 +47,6 @@ export class PinecodeApiService {
       await this.testIndex._delete({ deleteRequest });
       return true;
     } catch (e) {
-      console.log(e);
       return false;
     }
   }

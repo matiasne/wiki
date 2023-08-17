@@ -20,4 +20,7 @@ export interface IContentNode {
   type: string;
   parentId: string;
   description: string;
+  temperature: string;
+  textChunkSize: string;
+  textOverlapSize: string;
 }

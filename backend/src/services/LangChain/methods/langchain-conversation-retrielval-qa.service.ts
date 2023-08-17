@@ -30,8 +30,6 @@ export class LangChainConversationRetrievalQAService {
         },
       );
 
-      console.log(chain.questionGeneratorChain);
-
       let response = await chain.call({
         question,
         chat_history: [],

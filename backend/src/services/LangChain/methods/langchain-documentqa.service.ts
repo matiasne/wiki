@@ -25,7 +25,7 @@ export class LangChainDocumentsQAService {
       const chain = loadQARefineChain(
         new ChatOpenAI({
           modelName: 'gpt-4',
-          temperature: 0.9,
+          temperature: 0.1,
           openAIApiKey: process.env.OPENAI_API_KEY,
         }),
       );
@@ -36,15 +36,13 @@ export class LangChainDocumentsQAService {
           question,
         });
 
-        console.log(res);
-
         resolve({
           text: res.output_text,
           sourceDocuments: docs,
         });
       } else {
         resolve({
-          text: 'No se encontraron documentos relevantes',
+          text: 'No relevant documents found.',
           documents: [],
         });
       }

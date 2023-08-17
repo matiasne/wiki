@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateChatterboxDto {
   @IsNotEmpty()
@@ -10,4 +10,13 @@ export class CreateChatterboxDto {
 
   @IsString()
   aditionalPrompt: string;
+
+  @IsString()
+  temperature: string;
+
+  @IsString()
+  textChunkSize: string;
+
+  @IsString()
+  textOverlapSize: string;
 }

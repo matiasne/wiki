@@ -46,7 +46,6 @@ export default function NodesTreeView(): JSX.Element {
   });
 
   const refreshRoot = () => {
-    console.log("refreshing tree");
     refetch();
   };
 

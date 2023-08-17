@@ -46,14 +46,14 @@ export class ChatterboxController {
   async findAllConversations(@Body() data: any, @AuthUser() user: IAuthUser) {
     return await this.conversationsMessagesService.getMessages(
       user,
-      data.chatterboxId,
+      data.nodeId,
       1,
     );
   }
 
   @Get(':id')
   async findAll(@Param('id') id: string, @AuthUser() user: IAuthUser) {
-    return await this.chatterboxService.findById(user, id);
+    return await this.chatterboxService.findById(id);
   }
 
   @Patch(':id')
@@ -62,7 +62,6 @@ export class ChatterboxController {
     @Param('id') id: string,
     @Body() updateChatterboxDto: UpdateContentNodeDto,
   ) {
-    console.log(id);
     updateChatterboxDto.type = EnumContentNodeType.CHATTERBOX;
     return this.chatterboxService.update(user, id, updateChatterboxDto);
   }

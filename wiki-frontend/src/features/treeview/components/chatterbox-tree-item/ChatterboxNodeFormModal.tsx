@@ -54,7 +54,9 @@ export default function ChatterboxNodeFormModal({
     setValue("description", node.description);
     setValue("parentId", node.parentId);
     setValue("emojiUnified", node.emojiUnified);
-    console.log(node);
+    setValue("temperature", node.temperature);
+    setValue("textChunkSize", node.textChunkSize);
+    setValue("textOverlapSize", node.textOverlapSize);
   }, [node]);
 
   const onSubmit = async (data: any) => {
@@ -93,6 +95,29 @@ export default function ChatterboxNodeFormModal({
               type="text"
               size="small"
               {...register("name")}
+            />
+            <TextField
+              label="Temperature"
+              type="number"
+              size="small"
+              inputProps={{ type: "number" }}
+              {...register("temperature")}
+            />
+
+            <TextField
+              label="Text Chunk Size"
+              type="number"
+              size="small"
+              inputProps={{ type: "number" }}
+              {...register("textChunkSize")}
+            />
+
+            <TextField
+              label="Text Overlap Size"
+              type="number"
+              size="small"
+              inputProps={{ type: "number" }}
+              {...register("textOverlapSize")}
             />
             <InputLabel id="demo-simple-select-label">
               Additional Prompt

@@ -24,14 +24,6 @@ export class LangChainTaggingService {
         modelName: 'gpt-4-0613',
         temperature: 0,
       });
-
-      //const chain = createTaggingChain(schema, chatModel);
-
-      /*console.log(
-        await chain.run(
-          `Estoy increiblemente contento de haberte conocido! Creo que seremos muy buenos amigos!`,
-        ),
-      );*/
     });
   }
 }

@@ -54,7 +54,6 @@ export default function FolderNodeFormModal({
 
   const onSubmit = async (data: any) => {
     if (node && node.id) {
-      console.log(data);
       await NodeService.update(node.id, data);
     } else {
       await NodeService.createNew(data);

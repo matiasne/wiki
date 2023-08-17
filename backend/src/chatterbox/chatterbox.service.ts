@@ -40,7 +40,6 @@ export class ChatterboxService {
       type: EnumContentNodeType.CHATTERBOX,
     };
 
-    console.log('createContentNode', createContentNode);
     let node = await this.contentNodeService.create(user, createContentNode);
 
     let chatterbox = await this.chatterboxRepository.create(
@@ -51,11 +50,10 @@ export class ChatterboxService {
 
     this.chatterboxRepository.save(chatterbox);
 
-    console.log('chatterbox', chatterbox);
     return chatterbox;
   }
 
-  async findById(user: IAuthUser, chatterboxId: string) {
+  async findById(chatterboxId: string) {
     return await this.chatterboxRepository.findOne({
       where: {
         id: chatterboxId,
@@ -68,9 +66,6 @@ export class ChatterboxService {
     id: string,
     updateChatterboxDto: UpdateChatterboxDto,
   ) {
-    console.log('id', id);
-    console.log('updateChatterboxDto', updateChatterboxDto);
-
     await this.contentNodeService.update(
       user,
       id,

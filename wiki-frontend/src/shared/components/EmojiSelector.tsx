@@ -40,7 +40,7 @@ export default function EmojiSelector(props: EmojiSelectorProps) {
       >
         <EmojiPicker
           onEmojiClick={(data) => {
-            console.log(data);
+            
             setEmojiSelected(data);
             props.onEmojiSelected(data.unified);
             closeOptions();

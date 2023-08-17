@@ -5,6 +5,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import DriveFolderUploadIcon from "@mui/icons-material/DriveFolderUpload";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import SearchIcon from "@mui/icons-material/Search";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import NodeService from "@/features/treeview/services/node.service";
 import DataNodeFormModal from "./DataNodeFormModal";
@@ -50,9 +51,11 @@ export default function DataNodeTreeItem(props: DataNodeTreeItemProps) {
     setOpen(!open);
   };
 
-  const openLink = () => {
-    console.log("openLink", node);
+  const openChat = () => {
+    router.push("./home/chat/" + node.parentId + "/" + node.id);
+  };
 
+  const openLink = () => {
     if (node.type === EnumContentNodeType.URL) window.open(node.data, "_blank");
 
     if (node.type === EnumContentNodeType.FILE)
@@ -73,6 +76,14 @@ export default function DataNodeTreeItem(props: DataNodeTreeItemProps) {
           openLink();
         }}
         actionbuttons={[
+          {
+            labelIcon: SearchIcon,
+            labelText: "Chat",
+            onClick: (event) => {
+              event.stopPropagation();
+              openChat();
+            },
+          },
           {
             labelIcon: OpenInNewIcon,
             labelText: "Open",

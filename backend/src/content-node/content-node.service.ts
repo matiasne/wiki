@@ -14,6 +14,7 @@ import { PinecodeApiService } from 'src/services/pinecode.service';
 import { DocumentsService } from 'src/documents/documents.service';
 import { CustomException } from 'src/shared/custom-http-exception';
 import { IngestDataService } from 'src/services/ingest-data.service';
+import { ChatterboxService } from 'src/chatterbox/chatterbox.service';
 
 @Injectable()
 export class ContentNodeService {
@@ -27,7 +28,6 @@ export class ContentNodeService {
   ) {}
 
   async create(user: IAuthUser, createContentNodeDto: CreateContentNodeDto) {
-    
     const creator = await this.usersService.getById(user.id);
 
     if (await this.checkIfNodeNameExists(user, createContentNodeDto)) {
@@ -54,16 +54,6 @@ export class ContentNodeService {
 
     let node: ContentNode = await this.contentNodeRepository.save(newNode);
     this.userNodeRolService.addUserAsCreator(creator, node);
-    
-    
-    if (
-      createContentNodeDto.type != EnumContentNodeType.CHATTERBOX && 
-      createContentNodeDto.type != EnumContentNodeType.FOLDER
-    ) {
-      let chattreboxNode = await this.findChattrebocOfNodeTree(node.id);      
-      this.ingestService.processNodeData(user, node, chattreboxNode.id);
-    }
-
     return node;
   }
 
@@ -132,8 +122,6 @@ export class ContentNodeService {
     let res = await this.contentNodeRepository.manager
       .getTreeRepository(ContentNode)
       .findAncestors(node);
-
-    console.log(res);
 
     return res.find((r) => r.type == EnumContentNodeType.CHATTERBOX); //el primero es el nodo mismo no se poruqe es así
   }
@@ -210,7 +198,6 @@ export class ContentNodeService {
 
     let parentNode = await this.findParentTree(node.id);
 
-    console.log('parentNode', parentNode);
     if (node == null) {
       return {
         message: 'Node not found or user does not have access to it',

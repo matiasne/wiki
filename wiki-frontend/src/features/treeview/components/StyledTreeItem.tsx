@@ -46,15 +46,14 @@ const StyledTreeItemRoot = styled(TreeItem)(({ theme }) => ({
     borderBottomRightRadius: theme.spacing(2),
     paddingRight: theme.spacing(1),
     fontWeight: theme.typography.fontWeightMedium,
+    "&.Mui-selected": {
+      backgroundColor: "transparent",
+    },
     "&.Mui-expanded": {
       fontWeight: theme.typography.fontWeightRegular,
     },
     "&:hover": {
       backgroundColor: theme.palette.action.hover,
-    },
-    "&.Mui-focused, &.Mui-selected, &.Mui-selected.Mui-focused": {
-      backgroundColor: `var(--tree-view-bg-color, ${theme.palette.action.selected})`,
-      color: "var(--tree-view-color)",
     },
     [`& .${treeItemClasses.label}`]: {
       fontWeight: "inherit",
@@ -112,14 +111,11 @@ export default function StyledTreeItem(props: StyledTreeItemProps) {
 
   const keyPress = async (e: any) => {
     if (e.keyCode == 13) {
-      console.log("value", e.target.value);
       setEditingName(false);
 
       let resp = await nodeService.update(props.nodeId, {
         name: e.target.value,
       });
-
-      console.log(resp);
     } else {
       setEditingLabel(e.target.value);
     }

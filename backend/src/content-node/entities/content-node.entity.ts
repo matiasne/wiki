@@ -37,6 +37,15 @@ export class ContentNode extends BaseEntity {
   @Column({ default: '' })
   order: string;
 
+  @Column({ default: 0 })
+  temperature: number;
+
+  @Column({ default: 0 })
+  textChunkSize: number;
+
+  @Column({ default: 0 })
+  textOverlapSize: number;
+
   @Column({ default: '' })
   @IsEnum(EnumContentNodeType)
   type: EnumContentNodeType;

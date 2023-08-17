@@ -28,7 +28,7 @@ export class ConversationsMessagesService {
       .leftJoinAndSelect('conversation-message.user', 'user')
       .leftJoinAndSelect('conversation-message.node', 'content-node')
       .where('user.id = :userId')
-      .andWhere('chatterbox.id = :nodeId')
+      .andWhere('content-node.id = :nodeId')
       .setParameters(parameters)
       .getMany();
 

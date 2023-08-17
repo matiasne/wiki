@@ -37,7 +37,6 @@ const ChatInterface = ({ chatterboxId, nodeId }: ChatInterfaceProps) => {
 
           let messages: any[] = [];
           for await (let element of response) {
-            console.log(element);
             addMessageUI({
               type: "text",
               direction: element.userMessage ? "outgoing" : "incoming",
@@ -113,7 +112,6 @@ const ChatInterface = ({ chatterboxId, nodeId }: ChatInterfaceProps) => {
           }
         }
 
-        console.log(doc.metadata.userName);
         if (doc.metadata.userName) {
           msg +=
             " <a target='_blank'  href='" +
@@ -131,7 +129,7 @@ const ChatInterface = ({ chatterboxId, nodeId }: ChatInterfaceProps) => {
       position: "single",
       message: msg,
     };
-    console.log(messageModel);
+
     setMessages([...messages, messageModel]);
   };
 

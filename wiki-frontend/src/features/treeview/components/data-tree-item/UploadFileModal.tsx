@@ -111,7 +111,6 @@ export default function UploadFileModal({
             data={data}
             dispatch={dispatch}
             onFilesAdded={function (files: any): void {
-              console.log(files);
               addFile(files);
             }}
           />

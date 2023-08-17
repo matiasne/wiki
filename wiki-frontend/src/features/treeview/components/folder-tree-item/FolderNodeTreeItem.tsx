@@ -206,7 +206,6 @@ export default function FolderNodeTreeItem(props: FolderNodeTreeItemProps) {
           parentRefetch();
         }}
         onAddFile={() => {
-          console.log("onAddFile");
           refetch();
         }}
       />

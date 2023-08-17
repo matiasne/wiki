@@ -7,6 +7,7 @@ import { UsersModule } from 'src/users/users.module';
 import { UserNodeRoleModule } from 'src/user-node-rol/user-node-rol.module';
 import { PinecodeApiService } from 'src/services/pinecode.service';
 import { IngestDataService } from 'src/services/ingest-data.service';
+import { PythonScriptService } from 'src/services/pythonScripts/pythonScripts.service';
 
 @Module({
   imports: [
@@ -15,7 +16,12 @@ import { IngestDataService } from 'src/services/ingest-data.service';
     forwardRef(() => UserNodeRoleModule),
   ],
   controllers: [ContentNodeController],
-  providers: [ContentNodeService, PinecodeApiService, IngestDataService],
+  providers: [
+    ContentNodeService,
+    PinecodeApiService,
+    IngestDataService,
+    PythonScriptService,
+  ],
   exports: [ContentNodeService],
 })
 export class ContentNodeModule {}
